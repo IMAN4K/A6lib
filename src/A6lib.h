@@ -74,7 +74,7 @@ enum SMSRecordType {
 };
 
 typedef void(*void_cb_t)(void);
-typedef void (*sms_rx_cb_t)(const SMSInfo&);
+typedef void (*sms_rx_cb_t)(uint8_t indx, const SMSInfo&);
 typedef void(*sms_tx_cb_t)(void);
 typedef void_cb_t sms_full_cb_t;
 

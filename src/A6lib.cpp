@@ -176,7 +176,7 @@ void A6lib::handle() {
 	if (stream->available()) {
 		/* 
 			sms reception notification format:
-			\r\n<+CMT:> "<num>",,"<timestamp>"\r\n<content>\r\n
+			\r\n<+CMTI:> "<storage area>",index\r\n
 			
 			sms sent notification format:
 			+CMGS: <%d>\n
@@ -190,16 +190,19 @@ void A6lib::handle() {
 		if (data.endsWith(CR LF))
 			data.remove(data.length() - 2, 2);
 
-		auto cmtStart = data.indexOf("+CMT:");
+		auto cmtiStart = data.indexOf("+CMTI:");
 		auto cmgsStart = data.indexOf("+CMGS:");
 		auto smsFull = data.indexOf("+CIEV:");
-		if (cmtStart != -1) {
+		if (cmtiStart != -1) {
 			LOG("New SMS received");
 			SMSInfo info;
-			if (extract_sms("+CMT:", &data, &info)) {
-				if (sms_rx_cb)
-					sms_rx_cb(info);
-			}
+			uint8_t indx = 0;
+			auto end = data.indexOf(',');
+			data.remove(cmtiStart, end - cmtiStart + 1);
+			indx = data.toInt();
+			info = readSMS(indx);
+			if (sms_rx_cb)
+				sms_rx_cb(indx, info);
 		} else if (cmgsStart != -1) {
 			LOG("SMS sent");
 			if (sms_tx_cb)
@@ -838,7 +841,7 @@ bool A6lib::begin(unsigned long baud) {
 	success = success & cmd("AT+CMGF=1", RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, nullptr);
 
 	// Turn SMS indicators ON.
-	cmd("AT+CNMI=1,2,0,0,0", RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, nullptr);
+	cmd("AT+CNMI=0,1,0,0,0", RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, nullptr);
 
 	success = success & setPreferedStorage(SMSStorageArea::ME);
 
