@@ -97,12 +97,15 @@ public:
 	uint8_t getSignalQuality();
 	String getRealTimeClock();
 	String getIMEI();
+	String getSMSSca();
 	RegisterStatus getRegisterStatus();
 	static String registerStatusToString(RegisterStatus);
 
 	bool setPreferedStorage(SMSStorageArea);
 	bool setCharSet(const String &charset);
 	bool sendSMS(const String& number, const String& text);
+	bool sendPDU(const String& number, const String& content);
+	bool sendPDU(const String& number, wchar_t* content, uint8_t len);
 	SMSInfo readSMS(uint8_t index);
 	bool deleteSMS(uint8_t index);
 	int8_t getSMSList(int8_t* buff, uint8_t len, SMSRecordType record);

@@ -1,6 +1,9 @@
 #include <stdarg.h>
 
 #include "A6lib.h"
+extern "C" {
+#include "pdu.h"
+}
 
 #define A6_STATUS_OK 0
 #define A6_NOTOK 1
@@ -29,6 +32,8 @@
 #define CMGS_CMD "+CMGS"
 #define CMGL_CMD "+CMGL"
 #define CMGR_CMD "+CMGR"
+#define CSCA_CMD "+CSCA"
+#define CMGF_CMD "+CMGF"
 #define UCS2 "UCS2"
 #define CR "\r"
 #define LF "\n"
@@ -49,7 +54,7 @@ void LOG(const char* format, ...) {
 #endif // DEBUG
 }
 
-void normalizeResponse(String* arg) {
+void normalize_response(String* arg) {
 	if (arg == NULL)
 		return;
 
@@ -58,7 +63,7 @@ void normalizeResponse(String* arg) {
 	arg->replace("\r", "");
 }
 
-bool extractSMS(const String& prefix, String* data, SMSInfo* info) {
+bool extract_sms(const String& prefix, String* data, SMSInfo* info) {
 	if (info == nullptr || data == nullptr)
 		return false;
 
@@ -72,6 +77,24 @@ bool extractSMS(const String& prefix, String* data, SMSInfo* info) {
 	info->message = data->substring(delimiter + 3);
 
 	return true;
+}
+
+void to_hex_str(String* in, uint8_t* pdu, uint8_t len) {
+	if (!in || !pdu || len == 0)
+		return;
+
+	auto hex = [](uint8_t h) {
+		char tmp[3];
+		sprintf(tmp, "%02x", h);
+		String str(tmp);
+		str.toUpperCase();
+		
+		return str;
+	};
+
+	for (size_t i = 0; i < len; i++) {
+		in->concat(hex(pdu[i]));
+	}
 }
 
 
@@ -173,7 +196,7 @@ void A6lib::handle() {
 		if (cmtStart != -1) {
 			LOG("New SMS received");
 			SMSInfo info;
-			if (extractSMS("+CMT:", &data, &info)) {
+			if (extract_sms("+CMT:", &data, &info)) {
 				if (sms_rx_cb)
 					sms_rx_cb(info);
 			}
@@ -229,7 +252,7 @@ void A6lib::softReset() {
 String A6lib::getFirmWareVer() {
 	String ver;
 	if (cmd(AT_PREFIX GMR_CMD, RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, &ver)) {
-		normalizeResponse(&ver);
+		normalize_response(&ver);
 		ver.replace("Revision: ", "");
 		return ver;
 	}
@@ -253,7 +276,7 @@ int8_t A6lib::getRSSI() {
 		31 -> -51 dBm or greater
 		99 -> Uknown
 		*/
-		normalizeResponse(&response);
+		normalize_response(&response);
 		auto sub = response.substring(response.indexOf(':') + 2, response.indexOf(','));
 		if (sub.length() != 0) {
 			/* convert to RSSI */
@@ -301,7 +324,7 @@ String A6lib::getRealTimeClock() {
 	String command(AT_PREFIX CCLK_CMD);
 	command.concat('?');
 	if (cmd(command.c_str(), RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, &response)) {
-		normalizeResponse(&response);
+		normalize_response(&response);
 		return response.substring(response.indexOf(':') + 3, response.length() - 1);
 	}
 	
@@ -315,11 +338,26 @@ String A6lib::getRealTimeClock() {
 String A6lib::getIMEI() {
 	String response;
 	if (cmd(AT_PREFIX GSN_CMD, RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, &response)) {
-		normalizeResponse(&response);
+		normalize_response(&response);
 		return response;
 	}
 
 	return String();
+}
+
+/*!
+ * \brief A6lib::getSMSSca Get the current SMS service center address from modem.
+ * \return if success a string contain SCA, if fail an empty string
+ */
+String A6lib::getSMSSca() {
+	String response;
+	String command(AT_PREFIX CSCA_CMD);
+	command.concat('?');
+	if (cmd(command.c_str(), RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, &response)) {
+		response = response.substring(response.indexOf(':') + 3, response.indexOf(',') - 1);
+	}
+	
+	return response;
 }
 
 /*!
@@ -331,7 +369,7 @@ RegisterStatus A6lib::getRegisterStatus() {
 	String command(AT_PREFIX CREG_CMD);
 	command.concat('?');
 	if (cmd(command.c_str(), RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, &response)) {
-		normalizeResponse(&response);
+		normalize_response(&response);
 		auto sub = response.substring(response.indexOf(':') + 2, response.indexOf(','));
 		if (sub.length() != 0)
 			return static_cast<RegisterStatus>(sub.toInt());
@@ -536,8 +574,8 @@ int8_t A6lib::getSMSList(int8_t* buff, uint8_t len, SMSRecordType record) {
  */
 bool A6lib::sendSMS(const String& number, const String& text) {
 	char ctrlZ[] = { 0x1a, 0x00 };
-	if (text.length() > 159) {
-		LOG("Max sms chars(160 char in text mode) exceeded!");
+	if (text.length() > 80 * 2) {
+		LOG("TEXT mode: Max ASCII chars exceeded!");
 		return false;
 	}
 
@@ -548,11 +586,128 @@ bool A6lib::sendSMS(const String& number, const String& text) {
 	command.concat(number);
 	command.concat('"');
 	auto success = cmd(command.c_str(), ">", PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, NULL);
-	delay(10);
+	delay(100);
 	if (success) {
 		stream->print(text.c_str());
 		stream->print(ctrlZ);
 	}
+
+	return success;
+}
+
+/*!
+ * \brief A6lib::sendPDU Send an ASCII SMS in PDU mode.
+ * \param number the detination phone number which should begin with international code
+ * \param content the SMS content in ASCII and up to 160 chars
+ * \return true on success
+ */
+bool A6lib::sendPDU(const String& number, const String& content) {
+	if (content.length() > 80 * 2) {
+		LOG("PDU mode: Max ASCII chars exceeded!");
+		return false;
+	}
+
+	/* switch to PDU mode */
+	auto success = cmd(AT_PREFIX CMGF_CMD "=0", RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, nullptr);
+	if (!success)
+		return false;
+
+	auto sca = getSMSSca();
+	if (!sca.length()) {
+		cmd(AT_PREFIX CMGF_CMD "=1", RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, nullptr);
+		return false;
+	}
+
+	LOG("Send PDU to %s", number.c_str());
+	if (sca.startsWith("00"))
+		sca.remove(0, 2);
+	else if (sca.startsWith("0"))
+		sca.remove(0, 1);
+
+	String hex_str;
+	int nbyte = 0;
+	{
+		uint8_t pdu[140 + 20];
+		nbyte = pdu_encode(sca.c_str(), number.c_str(), content.c_str(), content.length(), pdu, sizeof(pdu));
+		hex_str.reserve(nbyte * 2);
+		to_hex_str(&hex_str, pdu, nbyte);
+	}
+	LOG("PDU mode: encode ASCII SMS to %d byte PDU", nbyte);
+	if (nbyte > 0) {
+		{
+			String command(AT_PREFIX CMGS_CMD);
+			command.concat('=');
+			auto tpdu_len = nbyte - ceilf(sca.length() / 2.0) - 2;
+			command.concat(String((int)tpdu_len, DEC));
+			success = cmd(command.c_str(), ">", PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, nullptr);
+		}
+		delay(100);
+		if (success) {
+			char ctrlZ[] = { 0x1a, 0x00 };
+			stream->print(hex_str);
+			stream->print(ctrlZ);
+		}
+	}
+	cmd(AT_PREFIX CMGF_CMD "=1", RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, nullptr);
+
+	return success;
+}
+
+/*!
+ * \brief A6lib::sendPDU Send a UCS2 SMS in PDU mode.
+ * \param number the detination phone number which should begin with international code
+ * \param content the SMS content coded in UCS2 format and up to 70 chars.
+ * \param len the number of UCS2 chars in \a content
+ * \return true on success
+ */
+bool A6lib::sendPDU(const String& number, wchar_t* content, uint8_t len) {
+	if (len > 70) {
+		LOG("PDU mode: Max UCS2 chars length exceeded!");
+		return false;
+	}
+
+	/* switch to PDU mode */
+	auto success = cmd(AT_PREFIX CMGF_CMD "=0", RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, nullptr);
+	if (!success)
+		return false;
+
+	auto sca = getSMSSca();
+	if (!sca.length()) {
+		cmd(AT_PREFIX CMGF_CMD "=1", RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, nullptr);
+		return false;
+	}
+
+	LOG("Send PDU to %s", number.c_str());
+	if (sca.startsWith("00"))
+		sca.remove(0, 2);
+	else if (sca.startsWith("0"))
+		sca.remove(0, 1);
+
+	String hex_str;
+	int nbyte = 0;
+	{
+		uint8_t pdu[140 + 20];
+		nbyte = pdu_encodew(sca.c_str(), number.c_str(), content, len, pdu, sizeof(pdu));
+		hex_str.reserve(nbyte * 2);
+		to_hex_str(&hex_str, pdu, nbyte);
+	}
+	LOG("PDU mode: encode UCS2 SMS to %d byte PDU", nbyte);
+	if (nbyte > 0) {
+		{
+			String command(AT_PREFIX CMGS_CMD);
+			command.concat('=');
+			auto tpdu_len = nbyte - ceilf(sca.length() / 2.0) - 2;
+			command.concat(String((int)tpdu_len, DEC));
+			success = cmd(command.c_str(), ">", PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, nullptr);
+		}
+		delay(100);
+		if (success) {
+			char ctrlZ[] = { 0x1a, 0x00 };
+			stream->print(hex_str);
+			stream->print(ctrlZ);
+		}
+	}
+	cmd(AT_PREFIX CMGF_CMD "=1", RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, nullptr);
 
 	return success;
 }
@@ -576,7 +731,7 @@ SMSInfo A6lib::readSMS(uint8_t index) {
 			response.remove(0, 2);
 		if (response.endsWith(CR LF))
 			response.remove(response.length() - 2, 2);
-		extractSMS(CMGR_CMD ":", &response, &info);
+		extract_sms(CMGR_CMD ":", &response, &info);
 	}
 
 	return info;
@@ -768,8 +923,7 @@ bool A6lib::cmd(const char *command, const char *resp1, const char *resp2, uint1
 	stream->flush();
 
 	while (max_retry-- && !success) {
-		LOG("Issuing command: ");
-		LOG(command);
+		LOG("Issuing command: %s", command);
 
 		stream->write(command);
 		stream->write('\r');
