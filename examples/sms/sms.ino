@@ -1,51 +1,85 @@
+//#define SEND_PDU
+//#define SEND_SMS
+//#define DST_NUM ""
+
+#define DEBUG
+#define DEBUG_PORT Serial
+
 #include <A6lib.h>
 
-#ifdef ESP8266
-#define D0 0
-#define D5 8
-#define D6 7
+#define PWR_PIN 0
+A6lib A6(&Serial);
+bool once = false;
+
+void new_sms_event(uint8_t indx, const SMSInfo& info) {
+	DEBUG_PORT.printf("\nEvent: new SMS\n");
+	DEBUG_PORT.printf("Number: %s, Date: %s, Content: %s\n", info.number.c_str(), info.date.c_str(), info.message.c_str());
+}
+
+void sms_sent_event() {
+	DEBUG_PORT.printf("\nEvent: SMS sent");
+
+	/* send PDU now */
+#ifdef SEND_PDU
+	if (!once) {
+		once = true;
+		wchar_t content[] = { 0x0048, 0x0069, 0x0021 }; // Hi!
+		A6.sendPDU(DST_NUM, content, 3);
+	}
 #endif
+}
 
-// Instantiate the library with TxPin, RxPin.
-A6lib A6l(D6, D5);
+void storage_full_event() {
+	DEBUG_PORT.printf("\nEvent: Modem prefered storage area is full\n");
+}
 
-int unreadSMSLocs[30] = {0};
-int unreadSMSNum = 0;
-SMSmessage sms;
+void run() {
+	/* User critical task (e.g handling KeyPad etc) could be here */
+}
 
 void setup() {
-    Serial.begin(115200);
+#ifdef DEBUG
+	DEBUG_PORT.begin(115200);
+	delay(100);
+#endif
+	A6.powerUp(PWR_PIN);
+	A6.start(9600, 3);
+	A6.onSMSReceived(&new_sms_event);
+	A6.onSMSSent(&sms_sent_event);
+	A6.onSMSStorageFull(&storage_full_event);
+	A6.addHandler(&run);
 
-    delay(1000);
+	DEBUG_PORT.printf("\nModem info: \n");
+	DEBUG_PORT.printf("IMEI: %s\n", A6.getIMEI().c_str());
+	DEBUG_PORT.printf("FirmWare version: %s\n", A6.getFirmWareVer().c_str());
+	DEBUG_PORT.printf("Network registration status: %s\n", A6lib::registerStatusToString(A6.getRegisterStatus()).c_str());
+	DEBUG_PORT.printf("SMS service center address: %s\n", A6.getSMSSca().c_str());
+	DEBUG_PORT.printf("Signal RSSI: %d\n", A6.getRSSI());
+	DEBUG_PORT.printf("Signal quality: %d\n", A6.getSignalQuality());
+	DEBUG_PORT.printf("RTC: %s\n", A6.getRealTimeClock().c_str());
+	DEBUG_PORT.println();
 
-    // Power-cycle the module to reset it.
-    A6l.powerCycle(D0);
-    A6l.blockUntilReady(9600);
+	A6.setPreferedStorage(SMSStorageArea::SM);
+
+	int8_t buff[32];
+	auto c = A6.getSMSList(buff, sizeof(buff), SMSRecordType::All);
+	if (c >= 0) {
+		DEBUG_PORT.printf("%d SMS found\n", c);
+		for (uint8_t i = 0; i < c; i++) {
+			auto info = A6.readSMS(buff[i]);
+			DEBUG_PORT.printf("SMS[%d] = Number: %s, Date: %s, Content: %s\n", buff[i], info.number.c_str(), info.date.c_str(), info.message.c_str());
+		}
+	}
+
+	auto reply = A6.sendCommand("AT+CPIN?");
+	DEBUG_PORT.printf("Reply for (AT+CPIN?): %s\n", reply.c_str());
+
+#ifdef SEND_SMS
+	A6.sendSMS(DST_NUM, "Hi!");
+	/* check for SMS sent event */
+#endif
 }
 
 void loop() {
-    String myNumber = "+1132352890";
-
-    callInfo cinfo = A6l.checkCallStatus();
-    if (cinfo.direction == DIR_INCOMING) {
-        if (myNumber.endsWith(cinfo.number)) {
-            // If the number that sent the SMS is ours, reply.
-            A6l.sendSMS(myNumber, "I can't come to the phone right now, I'm a machine.");
-            A6l.hangUp();
-        }
-
-        // Get the memory locations of unread SMS messages.
-        unreadSMSNum = A6l.getUnreadSMSLocs(unreadSMSLocs, 30);
-
-        for (int i = 0; i < unreadSMSNum; i++) {
-            Serial.print("New message at index: ");
-            Serial.println(unreadSMSLocs[i], DEC);
-
-            sms = A6l.readSMS(unreadSMSLocs[i]);
-            Serial.println(sms.number);
-            Serial.println(sms.date);
-            Serial.println(sms.message);
-        }
-        delay(1000);
-    }
+	A6.handle();
 }

@@ -123,7 +123,7 @@ public:
 	void onSMSReceived(sms_rx_cb_t);
 	void onSMSStorageFull(sms_full_cb_t);
 
-	String sendCommand(const String& command);
+	String sendCommand(const String& command, uint16_t reply_timeout = 2000);
 
 protected:
 	bool begin(unsigned long baud);
@@ -140,6 +140,7 @@ protected:
 
 private:
 	Stream* stream = nullptr;
+	bool isWaiting = false;
 	struct SerialPorts {
 		enum PortState {
 			Using_SoftWareSerial = 1,

@@ -16,6 +16,7 @@ extern "C" {
 
 #define PLACE_HOLDER "XX"
 #define RES_OK "OK"
+#define RES_ERR "ERROR"
 #define AT_PREFIX "AT"
 #define RST_CMD "+RST=1"
 #define GMR_CMD "+GMR"
@@ -173,6 +174,9 @@ bool A6lib::start(unsigned long baud, uint8_t max_retry) {
  * this function needs to be called inside main loop regularly, for callbacks to work correctly.
  */
 void A6lib::handle() {
+	if (isWaiting)
+		return;
+
 	if (stream->available()) {
 		/* 
 			sms reception notification format:
@@ -356,9 +360,8 @@ String A6lib::getSMSSca() {
 	String response;
 	String command(AT_PREFIX CSCA_CMD);
 	command.concat('?');
-	if (cmd(command.c_str(), RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, &response)) {
-		response = response.substring(response.indexOf(':') + 3, response.indexOf(',') - 1);
-	}
+	if (cmd(command.c_str(), RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, &response))
+		return response.substring(response.indexOf(CSCA_CMD ":") + 8, response.indexOf(',') - 1);
 	
 	return response;
 }
@@ -410,11 +413,12 @@ String A6lib::registerStatusToString(RegisterStatus st) {
  * \brief A6lib::sendCommand Send new command to modem.
  * command should be a valid AT command, otherwise modem will return error with corresponding error code.
  * \param command the command to be sent with AT prefix
+ * \param reply_timeout the timeout for modem to reply
  * \return if success an string contain modem reply, otherwise contain error code
  */
-String A6lib::sendCommand(const String& command) {
+String A6lib::sendCommand(const String& command, uint16_t reply_timeout) {
 	String reply;
-	cmd(command.c_str(), PLACE_HOLDER, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, &reply);
+	cmd(command.c_str(), RES_OK, RES_ERR, reply_timeout, A6_CMD_MAX_RETRY, &reply);
 
 	return reply;
 }
@@ -498,7 +502,8 @@ void A6lib::enableSpeaker(byte enable) {
 }
 
 /*!
- * \brief A6lib::setPreferedStorage Set the modem prefered storage area
+ * \brief A6lib::setPreferedStorage Set the modem prefered storage area.
+ * It's set to SMSStorageArea::ME by defualt.
  * \param area could be on of the SMSStorageArea
  * \return true on success
  */
@@ -547,21 +552,23 @@ int8_t A6lib::getSMSList(int8_t* buff, uint8_t len, SMSRecordType record) {
 	command.concat('"');
 
 	String response;
-	if (!cmd(command.c_str(), "\xff\r\nOK\r\n", "\r\nOK\r\n", A6_CMD_TIMEOUT * 2, A6_CMD_MAX_RETRY, &response))
+	if (!cmd(command.c_str(), RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT * 2, A6_CMD_MAX_RETRY, &response))
 		return -1;
 
 	memset(buff, 0, len);
 	int8_t count = 0;
 	char c_str[response.length() + 1];
 	response.toCharArray(c_str, response.length());
-	response = ""; // free up SRAM
+	response = (char*)NULL; // free up SRAM
 	auto tok = strtok(c_str, CR LF);
 	while (tok != NULL && count < len) {
 		String tmp(tok);
-		auto indx = tmp.substring(tmp.indexOf(CMGL_CMD ":") + 7, tmp.indexOf(',')).toInt();
-		if (indx) {
-			buff[count] = indx;
-			count++;
+		if (tmp.indexOf(CMGL_CMD) >= 0) {
+			auto indx = tmp.substring(tmp.indexOf(CMGL_CMD ":") + 7, tmp.indexOf(',')).toInt();
+			if (indx) {
+				buff[count] = indx;
+				count++;
+			}
 		}
 		tok = strtok(NULL, CR LF);
 	}
@@ -732,8 +739,8 @@ SMSInfo A6lib::readSMS(uint8_t index) {
 		response.replace("\"REC UNREAD\",", "");
 		if (response.startsWith(CR LF))
 			response.remove(0, 2);
-		if (response.endsWith(CR LF))
-			response.remove(response.length() - 2, 2);
+		if (response.endsWith(RES_OK CR LF))
+			response.remove(response.length() - 4, 4);
 		extract_sms(CMGR_CMD ":", &response, &info);
 	}
 
@@ -939,6 +946,7 @@ bool A6lib::cmd(const char *command, const char *resp1, const char *resp2, uint1
 bool A6lib::wait(const char *resp1, const char *resp2, uint16_t timeout, String *response) {
 	LOG("Waiting for reply...");
 	unsigned long entry = millis();
+	isWaiting = true;
 	String reply;
 	bool success = false;
 	do {
@@ -948,6 +956,7 @@ bool A6lib::wait(const char *resp1, const char *resp2, uint16_t timeout, String 
 			handler_cb();
 	} while (((reply.indexOf(resp1) + reply.indexOf(resp2)) == -2) && ((millis() - entry) < timeout));
 
+	isWaiting = false;
 	if (reply.length() != 0) {
 		LOG("Reply in %lu ms\n", millis() - entry);
 #ifdef DEBUG
