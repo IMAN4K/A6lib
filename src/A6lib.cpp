@@ -12,7 +12,7 @@ extern "C" {
 
 #define countof(a) (sizeof(a) / sizeof(a[0]))
 #define A6_CMD_TIMEOUT 2000
-#define A6_CMD_MAX_RETRY 3
+#define A6_CMD_MAX_RETRY 2
 
 #define PLACE_HOLDER "XX"
 #define RES_OK "OK"
@@ -35,6 +35,8 @@ extern "C" {
 #define CMGR_CMD "+CMGR"
 #define CSCA_CMD "+CSCA"
 #define CMGF_CMD "+CMGF"
+#define NOTIF_CMTI "+CMTI"
+#define NOTIF_CIEV "+CIEV"
 #define UCS2 "UCS2"
 #define CR "\r"
 #define LF "\n"
@@ -174,49 +176,69 @@ bool A6lib::start(unsigned long baud, uint8_t max_retry) {
  * this function needs to be called inside main loop regularly, for callbacks to work correctly.
  */
 void A6lib::handle() {
-	if (isWaiting)
+	if (lastInterestedReply.length() != 0) {
+		parseForNotifications(&lastInterestedReply);
+		lastInterestedReply.remove(0);
+	}
+
+	if (!isWaiting && stream->available()) {
+		auto reply = stream->readString();
+		parseForNotifications(&reply);
+	}
+}
+
+void A6lib::parseForNotifications(String* data) {
+	if (!data)
 		return;
 
-	if (stream->available()) {
-		/* 
-			sms reception notification format:
-			\r\n<+CMTI:> "<storage area>",index\r\n
-			
-			sms sent notification format:
-			+CMGS: <%d>\n
+	/*
+		sms reception notification format:
+		\r\n<+CMTI:> "<storage area>",index\r\n
 
-			sms storage full notification:
-			+CIEV: "SMSFULL",%d
-		*/
-		auto data = stream->readString();
-		if (data.startsWith(CR LF))
-			data.remove(0, 2);
-		if (data.endsWith(CR LF))
-			data.remove(data.length() - 2, 2);
+		sms sent notification format:
+		+CMGS: <%d>\n
 
-		auto cmtiStart = data.indexOf("+CMTI:");
-		auto cmgsStart = data.indexOf("+CMGS:");
-		auto smsFull = data.indexOf("+CIEV:");
-		if (cmtiStart != -1) {
-			LOG("New SMS received");
-			SMSInfo info;
-			uint8_t indx = 0;
-			auto end = data.indexOf(',');
-			data.remove(cmtiStart, end - cmtiStart + 1);
-			indx = data.toInt();
-			info = readSMS(indx);
-			if (sms_rx_cb)
-				sms_rx_cb(indx, info);
-		} else if (cmgsStart != -1) {
-			LOG("SMS sent");
-			if (sms_tx_cb)
-				sms_tx_cb();
-		} else if (smsFull != -1 && data.indexOf("SMSFULL") != -1) {
-			LOG("Modem prefered storage is full!");
-			if (sms_full_cb)
-				sms_full_cb();
-		}
+		sms storage full notification:
+		+CIEV: "SMSFULL",%d
+	*/
+
+	/* not intrested, should be normal reply */
+	if (!hasNotifications(*data))
+		return;
+	
+	auto cmtiStart = data->indexOf(NOTIF_CMTI ":");
+	auto cmgsStart = data->indexOf(CMGS_CMD ":");
+	auto smsFull = data->indexOf(NOTIF_CIEV ":");
+	
+	if (data->startsWith(CR LF))
+		data->remove(0, 2);
+	if (data->endsWith(CR LF))
+		data->remove(data->length() - 2, 2);
+
+	if (cmtiStart != -1) {
+		LOG("New SMS received");
+		DEBUG_PORT.print(*data);
+		SMSInfo info;
+		uint8_t indx = 0;
+		auto end = data->indexOf("\",");
+		indx = data->substring(end + 2).toInt();
+		info = readSMS(indx);
+		if (sms_rx_cb)
+			sms_rx_cb(indx, info);
+	} else if (cmgsStart != -1) {
+		LOG("SMS sent");
+		if (sms_tx_cb)
+			sms_tx_cb();
+	} else if (smsFull != -1 && data->indexOf("SMSFULL") != -1) {
+		LOG("Modem prefered storage is full!");
+		if (sms_full_cb)
+			sms_full_cb();
 	}
+
+}
+
+bool A6lib::hasNotifications(const String& arg) {
+	return arg.indexOf(NOTIF_CMTI ":") != -1 || arg.indexOf(CMGS_CMD ":") != -1 || arg.indexOf(NOTIF_CIEV ":") != -1;
 }
 
 /*!
@@ -559,7 +581,7 @@ int8_t A6lib::getSMSList(int8_t* buff, uint8_t len, SMSRecordType record) {
 	int8_t count = 0;
 	char c_str[response.length() + 1];
 	response.toCharArray(c_str, response.length());
-	response = (char*)NULL; // free up SRAM
+	response.remove(0);
 	auto tok = strtok(c_str, CR LF);
 	while (tok != NULL && count < len) {
 		String tmp(tok);
@@ -962,6 +984,9 @@ bool A6lib::wait(const char *resp1, const char *resp2, uint16_t timeout, String 
 #ifdef DEBUG
 		DEBUG_PORT.print(reply);
 #endif
+		/* maybe some notifications included in command's reply, so we check for sure */
+		if (hasNotifications(reply))
+			lastInterestedReply = reply; // schedule for calling callbacks
 	}
 
 	if (response != nullptr)

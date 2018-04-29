@@ -19,16 +19,12 @@
 
 #include "pdu.h"
 
-#define READ_BIT(arg, n) (((arg) >> (n)) & 0x01)
-#define SET_BIT(arg, n) ((arg) |= (0x01 << (n)))
-#define CLEAR_BIT(arg, n) ((arg) &= ~(0x01 << (n)))
-#define LOW_NIBBLE(arg) ((arg) & 0x0F)
-#define HIGTH_NIBBLE(arg) (((arg) & 0xF0) >> 4)
-#define SWAP_NIBBLE(arg) ((HIGTH_NIBBLE(arg) << 4) | (LOW_NIBBLE(arg)))
-#define TO_CHAR(arg) (char)(arg + 48)
 #define TO_HEX(arg) (uint8_t)(arg - 48)
 
-/* reverse string <in> of size <len> to hex <out> */
+/* 
+	reverse every 2 char of string <in> of size <len>, to hex <out> 
+	e.g in: "1234" out: 0x21 0x43
+*/
 bool str_reverse(const char* in, uint8_t len, uint8_t* out) {
 	if (in == NULL || out == NULL || len == 0)
 		return false;
@@ -42,7 +38,7 @@ bool str_reverse(const char* in, uint8_t len, uint8_t* out) {
 	return true;
 }
 
-/* convert ascii input string to 7-bit GSM alphabet */
+/* convert input ASCII string to 7-bit GSM alphabet */
 int ascii_to_gsm(const char* in, uint8_t len, uint8_t* out) {
 	if (in == NULL || out == NULL || len == 0)
 		return -1;

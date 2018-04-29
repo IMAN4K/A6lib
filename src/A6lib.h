@@ -134,6 +134,10 @@ protected:
 	void powerOn(uint8_t pin) const;
 	void powerOff(uint8_t pin) const;
 
+	void parseForNotifications(String* data);
+	bool hasNotifications(const String& arg);
+	String lastInterestedReply;
+
 	String readFromSerial() const;
 	bool cmd(const char *command, const char *resp1, const char *resp2, uint16_t timeout, uint8_t max_retry, String *response);
 	bool wait(const char *resp1, const char *resp2, uint16_t timeout, String *response);
