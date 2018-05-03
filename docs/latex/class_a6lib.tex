@@ -1,0 +1,501 @@
+\hypertarget{class_a6lib}{}\section{A6lib Class Reference}
+\label{class_a6lib}\index{A6lib@{A6lib}}
+
+
+A library for controlling Ai-\/\+Thinker A6 modem.  
+
+
+
+
+{\ttfamily \#include $<$A6lib.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_a6lib_a5cbcf78590cf824bfaa16b181b6ac4a1}{A6lib}} (Hardware\+Serial $\ast$port)
+\item 
+\mbox{\hyperlink{class_a6lib_a415ffc3dc0178a4ee8fdf3e718ef14a9}{A6lib}} (Software\+Serial $\ast$port)
+\item 
+\mbox{\hyperlink{class_a6lib_a318fb5617771079545af012b28f6a1e7}{A6lib}} (uint8\+\_\+t rx\+\_\+pin, uint8\+\_\+t tx\+\_\+pin)
+\item 
+\mbox{\hyperlink{class_a6lib_aac4fbb7021b2f1741b01d72b606d5081}{$\sim$\+A6lib}} ()
+\item 
+void \mbox{\hyperlink{class_a6lib_adcc817ae29dd20892faf53fd3a8b1bac}{handle}} ()
+\item 
+bool \mbox{\hyperlink{class_a6lib_a4c9b1bef86c734cb57e7962936ecf481}{start}} (unsigned long baud, uint8\+\_\+t max\+\_\+retry)
+\item 
+void \mbox{\hyperlink{class_a6lib_add46e8926e5809cc7e33a7ad2817fcc5}{power\+Up}} (int pin)
+\item 
+void \mbox{\hyperlink{class_a6lib_a7ddb0b59879dcc59290b72a585231ef2}{hard\+Reset}} (uint8\+\_\+t pin)
+\item 
+void \mbox{\hyperlink{class_a6lib_a8b64136d0c8aba6af51568ff93a5455e}{soft\+Reset}} ()
+\item 
+String \mbox{\hyperlink{class_a6lib_a92cc2f3cd1f793bf1bf77a3b528aba81}{get\+Firm\+Ware\+Ver}} ()
+\item 
+int8\+\_\+t \mbox{\hyperlink{class_a6lib_a6cfaf041a05b6d86fbc5c18aa196bd0c}{get\+R\+S\+SI}} ()
+\item 
+uint8\+\_\+t \mbox{\hyperlink{class_a6lib_a90a1e3733155181d56c02f7973066ddf}{get\+Signal\+Quality}} ()
+\item 
+String \mbox{\hyperlink{class_a6lib_ab18ee06ead6ceac9716265c0e418b83b}{get\+Real\+Time\+Clock}} ()
+\item 
+String \mbox{\hyperlink{class_a6lib_a365df3e93f910171da9d5914ae1997c2}{get\+I\+M\+EI}} ()
+\item 
+String \mbox{\hyperlink{class_a6lib_ae1b286d8db58b85e8295a4293ab450db}{get\+S\+M\+S\+Sca}} ()
+\item 
+\mbox{\hyperlink{_a6lib_8h_a0a43f46ad95cebb665a0d371219a6015}{Register\+Status}} \mbox{\hyperlink{class_a6lib_a7a8beb6c42199ea32f9a73f45f7b500e}{get\+Register\+Status}} ()
+\item 
+bool \mbox{\hyperlink{class_a6lib_a8d6a63b19eb9bf6d3edb359b05dbc08e}{set\+Prefered\+Storage}} (\mbox{\hyperlink{_a6lib_8h_a683c3425c199702a4b8b13f7f2518af5}{S\+M\+S\+Storage\+Area}})
+\item 
+bool \mbox{\hyperlink{class_a6lib_abff3a80733dc0964d95ea9b981515f26}{set\+Char\+Set}} (const String \&charset)
+\item 
+bool \mbox{\hyperlink{class_a6lib_aaf7efdb36c3d8c419a0bf26d5220f91d}{send\+S\+MS}} (const String \&number, const String \&text)
+\item 
+bool \mbox{\hyperlink{class_a6lib_a0ce431632e4a5e4d26c2d95c83fe7ee5}{send\+P\+DU}} (const String \&number, const String \&content)
+\item 
+bool \mbox{\hyperlink{class_a6lib_aa9fe9166fe1d7b39bd40dea833844377}{send\+P\+DU}} (const String \&number, wchar\+\_\+t $\ast$content, uint8\+\_\+t len)
+\item 
+\mbox{\hyperlink{struct_s_m_s_info}{S\+M\+S\+Info}} \mbox{\hyperlink{class_a6lib_aad58cce8168f9554470f3afa854afb29}{read\+S\+MS}} (uint8\+\_\+t index)
+\item 
+bool \mbox{\hyperlink{class_a6lib_a3b0b2dafb06fda63b9b0ab0ae24e33da}{delete\+S\+MS}} (uint8\+\_\+t index)
+\item 
+int8\+\_\+t \mbox{\hyperlink{class_a6lib_ac6c57bc2707d968d2ce6c55bdcf22c0c}{get\+S\+M\+S\+List}} (int8\+\_\+t $\ast$buff, uint8\+\_\+t len, \mbox{\hyperlink{_a6lib_8h_a810fca4a55c1c8a606d12c63ed21e041}{S\+M\+S\+Record\+Type}} record)
+\item 
+void \mbox{\hyperlink{class_a6lib_a8f424e17a31d51ab813698a6f1a8290c}{dial}} (String number)
+\item 
+void \mbox{\hyperlink{class_a6lib_a49996e929193a3a1942d58c884e919fb}{redial}} ()
+\item 
+void \mbox{\hyperlink{class_a6lib_a9ed8e337fcaf0400da3e0b2f518a0db5}{answer}} ()
+\item 
+void \mbox{\hyperlink{class_a6lib_ad5932ea0250881d449d566680a67833e}{hang\+Up}} ()
+\item 
+\mbox{\hyperlink{structcall_info}{call\+Info}} \mbox{\hyperlink{class_a6lib_a05f56b30c3080fc64e5f4bf7d7703866}{check\+Call\+Status}} ()
+\item 
+void \mbox{\hyperlink{class_a6lib_a4042e45892004cd9273f1b1c85d86ffc}{set\+Vol}} (byte level)
+\item 
+void \mbox{\hyperlink{class_a6lib_a86acb23093b4c07f84b56d495799dd10}{enable\+Speaker}} (byte enable)
+\item 
+void \mbox{\hyperlink{class_a6lib_ab9580c0720252ad9e2d6b67683e3e88f}{add\+Handler}} (\mbox{\hyperlink{_a6lib_8h_a7a1b65425109a6c0a0d203c1fe9bbbe5}{void\+\_\+cb\+\_\+t}})
+\item 
+void \mbox{\hyperlink{class_a6lib_ac92651260eaefe715ed1e1dc798fa275}{on\+S\+M\+S\+Sent}} (\mbox{\hyperlink{_a6lib_8h_a7b74957a5e4992ea4364e91c175b5d7d}{sms\+\_\+tx\+\_\+cb\+\_\+t}})
+\item 
+void \mbox{\hyperlink{class_a6lib_a9503f1167ed6fd225aee3086b827803d}{on\+S\+M\+S\+Received}} (\mbox{\hyperlink{_a6lib_8h_a0c0c0674e9fa2ea70a4a13b38abdc0f9}{sms\+\_\+rx\+\_\+cb\+\_\+t}})
+\item 
+void \mbox{\hyperlink{class_a6lib_ac254b0457036a93d83e1a6fc296f57a0}{on\+S\+M\+S\+Storage\+Full}} (\mbox{\hyperlink{_a6lib_8h_a97f6ff1cf1ed894d22d58ebdb05b8bbf}{sms\+\_\+full\+\_\+cb\+\_\+t}})
+\item 
+String \mbox{\hyperlink{class_a6lib_a934e8451ed2125f0fee5bc720a99ed91}{send\+Command}} (const String \&command, uint16\+\_\+t reply\+\_\+timeout=2000)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static String \mbox{\hyperlink{class_a6lib_a92586286549a825ad30f0045b6721e6d}{register\+Status\+To\+String}} (\mbox{\hyperlink{_a6lib_8h_a0a43f46ad95cebb665a0d371219a6015}{Register\+Status}})
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A library for controlling Ai-\/\+Thinker A6 modem. 
+
+An Arduino library for communicating with the A\+I-\/\+Thinker A6 G\+SM module, It currently supports E\+S\+P8266 and A\+VR architectures. This small lib mainly intended for Ai-\/\+Thinker A6 modem but may possiblly work with other G\+SM modems supporting standard AT command set (e.\+g S\+I\+M800,S\+I\+M900,...). Using this lib is straightforward, you can create an object of \mbox{\hyperlink{class_a6lib}{A6lib}} via Hardware\+Serial, Software\+Serial or just two pin number for built in Software\+Serial. Then you usually should power up your module (\mbox{\hyperlink{class_a6lib_add46e8926e5809cc7e33a7ad2817fcc5}{A6lib\+::power\+Up()}}) and initlize \mbox{\hyperlink{class_a6lib}{A6lib}} object to start communicating with modem at desired baud rate. from now on, use public A\+P\+Is to control your modem and get informations from it.
+
+This lib has been modified to be asynchronous, so currently you can pass your functions to register A\+P\+Is to catch these events\+:
+\begin{DoxyEnumerate}
+\item S\+MS sent
+\item S\+MS recevied
+\item Storage area is full
+\end{DoxyEnumerate}
+
+\begin{DoxyNote}{Note}
+A note about \mbox{\hyperlink{class_a6lib_ab9580c0720252ad9e2d6b67683e3e88f}{A6lib\+::add\+Handler()}}\+: When you have some important tasks in your code for example reading keypad etc, you can add a main function for running those tasks and pass it to \mbox{\hyperlink{class_a6lib_ab9580c0720252ad9e2d6b67683e3e88f}{A6lib\+::add\+Handler()}}, when you pass a valid function, lib will call it whenever it\textquotesingle{}s in waiting state (waiting for modem to reply) and thus it\textquotesingle{}ll prevent locking in that precious time.
+\end{DoxyNote}
+To get start you can check out examples directory. 
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_a6lib_a5cbcf78590cf824bfaa16b181b6ac4a1}\label{class_a6lib_a5cbcf78590cf824bfaa16b181b6ac4a1}} 
+\index{A6lib@{A6lib}!A6lib@{A6lib}}
+\index{A6lib@{A6lib}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{A6lib()}{A6lib()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily A6lib\+::\+A6lib (\begin{DoxyParamCaption}\item[{Hardware\+Serial $\ast$}]{port }\end{DoxyParamCaption})}
+
+Constructs \mbox{\hyperlink{class_a6lib}{A6lib}} object with the given serial {\itshape port}. 
+\begin{DoxyParams}{Parameters}
+{\em port} & Hardware\+Serial object for use inside \mbox{\hyperlink{class_a6lib}{A6lib}}. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_a6lib_a415ffc3dc0178a4ee8fdf3e718ef14a9}\label{class_a6lib_a415ffc3dc0178a4ee8fdf3e718ef14a9}} 
+\index{A6lib@{A6lib}!A6lib@{A6lib}}
+\index{A6lib@{A6lib}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{A6lib()}{A6lib()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily A6lib\+::\+A6lib (\begin{DoxyParamCaption}\item[{Software\+Serial $\ast$}]{port }\end{DoxyParamCaption})}
+
+Constructs \mbox{\hyperlink{class_a6lib}{A6lib}} object with the given serial port. 
+\begin{DoxyParams}{Parameters}
+{\em port} & Software\+Serial object for use inside \mbox{\hyperlink{class_a6lib}{A6lib}} \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_a6lib_a318fb5617771079545af012b28f6a1e7}\label{class_a6lib_a318fb5617771079545af012b28f6a1e7}} 
+\index{A6lib@{A6lib}!A6lib@{A6lib}}
+\index{A6lib@{A6lib}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{A6lib()}{A6lib()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily A6lib\+::\+A6lib (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{rx\+\_\+pin,  }\item[{uint8\+\_\+t}]{tx\+\_\+pin }\end{DoxyParamCaption})}
+
+Constructs \mbox{\hyperlink{class_a6lib}{A6lib}} object with the given pin numbers. this is done by creating new Software\+Serial object. 
+\begin{DoxyParams}{Parameters}
+{\em tx\+\_\+pin} & Software\+Serial TX pin \\
+\hline
+{\em rx\+\_\+pin} & Software\+Serial RX pin \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_a6lib_aac4fbb7021b2f1741b01d72b606d5081}\label{class_a6lib_aac4fbb7021b2f1741b01d72b606d5081}} 
+\index{A6lib@{A6lib}!````~A6lib@{$\sim$\+A6lib}}
+\index{````~A6lib@{$\sim$\+A6lib}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{$\sim$\+A6lib()}{~A6lib()}}
+{\footnotesize\ttfamily A6lib\+::$\sim$\+A6lib (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Destroys \mbox{\hyperlink{class_a6lib}{A6lib}} object. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_a6lib_ab9580c0720252ad9e2d6b67683e3e88f}\label{class_a6lib_ab9580c0720252ad9e2d6b67683e3e88f}} 
+\index{A6lib@{A6lib}!add\+Handler@{add\+Handler}}
+\index{add\+Handler@{add\+Handler}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{add\+Handler()}{addHandler()}}
+{\footnotesize\ttfamily void A6lib\+::add\+Handler (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{_a6lib_8h_a7a1b65425109a6c0a0d203c1fe9bbbe5}{void\+\_\+cb\+\_\+t}}}]{cb }\end{DoxyParamCaption})}
+
+Add the \mbox{\hyperlink{class_a6lib}{A6lib}} main handler callback. \mbox{\hyperlink{class_a6lib}{A6lib}} will call this handler when it is inside the waiting routine. it\textquotesingle{}ll prevent lock in your code when you have some critical tasks to run. Note\+: The result of passing loop() to this function is undefined! \mbox{\Hypertarget{class_a6lib_a9ed8e337fcaf0400da3e0b2f518a0db5}\label{class_a6lib_a9ed8e337fcaf0400da3e0b2f518a0db5}} 
+\index{A6lib@{A6lib}!answer@{answer}}
+\index{answer@{answer}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{answer()}{answer()}}
+{\footnotesize\ttfamily void A6lib\+::answer (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_a6lib_a05f56b30c3080fc64e5f4bf7d7703866}\label{class_a6lib_a05f56b30c3080fc64e5f4bf7d7703866}} 
+\index{A6lib@{A6lib}!check\+Call\+Status@{check\+Call\+Status}}
+\index{check\+Call\+Status@{check\+Call\+Status}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{check\+Call\+Status()}{checkCallStatus()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{structcall_info}{call\+Info}} A6lib\+::check\+Call\+Status (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_a6lib_a3b0b2dafb06fda63b9b0ab0ae24e33da}\label{class_a6lib_a3b0b2dafb06fda63b9b0ab0ae24e33da}} 
+\index{A6lib@{A6lib}!delete\+S\+MS@{delete\+S\+MS}}
+\index{delete\+S\+MS@{delete\+S\+MS}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{delete\+S\+M\+S()}{deleteSMS()}}
+{\footnotesize\ttfamily bool A6lib\+::delete\+S\+MS (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{index }\end{DoxyParamCaption})}
+
+Delete a S\+MS from modem prefered storage area. 
+\begin{DoxyParams}{Parameters}
+{\em index} & sms index in storage area \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true on success 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_a6lib_a8f424e17a31d51ab813698a6f1a8290c}\label{class_a6lib_a8f424e17a31d51ab813698a6f1a8290c}} 
+\index{A6lib@{A6lib}!dial@{dial}}
+\index{dial@{dial}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{dial()}{dial()}}
+{\footnotesize\ttfamily void A6lib\+::dial (\begin{DoxyParamCaption}\item[{String}]{number }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_a6lib_a86acb23093b4c07f84b56d495799dd10}\label{class_a6lib_a86acb23093b4c07f84b56d495799dd10}} 
+\index{A6lib@{A6lib}!enable\+Speaker@{enable\+Speaker}}
+\index{enable\+Speaker@{enable\+Speaker}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{enable\+Speaker()}{enableSpeaker()}}
+{\footnotesize\ttfamily void A6lib\+::enable\+Speaker (\begin{DoxyParamCaption}\item[{byte}]{enable }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_a6lib_a92cc2f3cd1f793bf1bf77a3b528aba81}\label{class_a6lib_a92cc2f3cd1f793bf1bf77a3b528aba81}} 
+\index{A6lib@{A6lib}!get\+Firm\+Ware\+Ver@{get\+Firm\+Ware\+Ver}}
+\index{get\+Firm\+Ware\+Ver@{get\+Firm\+Ware\+Ver}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{get\+Firm\+Ware\+Ver()}{getFirmWareVer()}}
+{\footnotesize\ttfamily String A6lib\+::get\+Firm\+Ware\+Ver (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Get the revision identification or firmware version of modem. \begin{DoxyReturn}{Returns}
+If success a String contain firmware version, and if fail an empty string. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_a6lib_a365df3e93f910171da9d5914ae1997c2}\label{class_a6lib_a365df3e93f910171da9d5914ae1997c2}} 
+\index{A6lib@{A6lib}!get\+I\+M\+EI@{get\+I\+M\+EI}}
+\index{get\+I\+M\+EI@{get\+I\+M\+EI}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{get\+I\+M\+E\+I()}{getIMEI()}}
+{\footnotesize\ttfamily String A6lib\+::get\+I\+M\+EI (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Get the modem I\+M\+EI. \begin{DoxyReturn}{Returns}
+if success a string contain I\+M\+EI number, if fail an empty string. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_a6lib_ab18ee06ead6ceac9716265c0e418b83b}\label{class_a6lib_ab18ee06ead6ceac9716265c0e418b83b}} 
+\index{A6lib@{A6lib}!get\+Real\+Time\+Clock@{get\+Real\+Time\+Clock}}
+\index{get\+Real\+Time\+Clock@{get\+Real\+Time\+Clock}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{get\+Real\+Time\+Clock()}{getRealTimeClock()}}
+{\footnotesize\ttfamily String A6lib\+::get\+Real\+Time\+Clock (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Get the real time from modem. \begin{DoxyReturn}{Returns}
+if success a string contain time in format yy/mm/dd,hh\+:mm\+:ss+zz, if fail an empty string. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_a6lib_a7a8beb6c42199ea32f9a73f45f7b500e}\label{class_a6lib_a7a8beb6c42199ea32f9a73f45f7b500e}} 
+\index{A6lib@{A6lib}!get\+Register\+Status@{get\+Register\+Status}}
+\index{get\+Register\+Status@{get\+Register\+Status}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{get\+Register\+Status()}{getRegisterStatus()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{_a6lib_8h_a0a43f46ad95cebb665a0d371219a6015}{Register\+Status}} A6lib\+::get\+Register\+Status (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Get the network registration status of modem. \begin{DoxyReturn}{Returns}
+on of the \mbox{\hyperlink{_a6lib_8h_a0a43f46ad95cebb665a0d371219a6015}{Register\+Status}} value 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_a6lib_a6cfaf041a05b6d86fbc5c18aa196bd0c}\label{class_a6lib_a6cfaf041a05b6d86fbc5c18aa196bd0c}} 
+\index{A6lib@{A6lib}!get\+R\+S\+SI@{get\+R\+S\+SI}}
+\index{get\+R\+S\+SI@{get\+R\+S\+SI}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{get\+R\+S\+S\+I()}{getRSSI()}}
+{\footnotesize\ttfamily int8\+\_\+t A6lib\+::get\+R\+S\+SI (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Get the modem signal strength based on R\+S\+S\+I(measured as d\+Bm). \begin{DoxyReturn}{Returns}
+If success a value between -\/113d\+Bm and -\/51d\+Bm and if fail 0. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_a6lib_a90a1e3733155181d56c02f7973066ddf}\label{class_a6lib_a90a1e3733155181d56c02f7973066ddf}} 
+\index{A6lib@{A6lib}!get\+Signal\+Quality@{get\+Signal\+Quality}}
+\index{get\+Signal\+Quality@{get\+Signal\+Quality}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{get\+Signal\+Quality()}{getSignalQuality()}}
+{\footnotesize\ttfamily uint8\+\_\+t A6lib\+::get\+Signal\+Quality (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Get the modem signal quality level. \begin{DoxyReturn}{Returns}
+if success a value between 0-\/100 and if fail 255. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_a6lib_ac6c57bc2707d968d2ce6c55bdcf22c0c}\label{class_a6lib_ac6c57bc2707d968d2ce6c55bdcf22c0c}} 
+\index{A6lib@{A6lib}!get\+S\+M\+S\+List@{get\+S\+M\+S\+List}}
+\index{get\+S\+M\+S\+List@{get\+S\+M\+S\+List}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{get\+S\+M\+S\+List()}{getSMSList()}}
+{\footnotesize\ttfamily int8\+\_\+t A6lib\+::get\+S\+M\+S\+List (\begin{DoxyParamCaption}\item[{int8\+\_\+t $\ast$}]{buff,  }\item[{uint8\+\_\+t}]{len,  }\item[{\mbox{\hyperlink{_a6lib_8h_a810fca4a55c1c8a606d12c63ed21e041}{S\+M\+S\+Record\+Type}}}]{record }\end{DoxyParamCaption})}
+
+Get the list of available S\+MS in prefered storage area. 
+\begin{DoxyParams}{Parameters}
+{\em buff} & input buffer to store S\+MS indexes. \\
+\hline
+{\em len} & size of buff \\
+\hline
+{\em record} & on of the S\+M\+S\+Record\+Type. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+if fail -\/1, otherwise number of founded S\+MS. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_a6lib_ae1b286d8db58b85e8295a4293ab450db}\label{class_a6lib_ae1b286d8db58b85e8295a4293ab450db}} 
+\index{A6lib@{A6lib}!get\+S\+M\+S\+Sca@{get\+S\+M\+S\+Sca}}
+\index{get\+S\+M\+S\+Sca@{get\+S\+M\+S\+Sca}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{get\+S\+M\+S\+Sca()}{getSMSSca()}}
+{\footnotesize\ttfamily String A6lib\+::get\+S\+M\+S\+Sca (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Get the current S\+MS service center address from modem. \begin{DoxyReturn}{Returns}
+if success a string contain S\+CA, if fail an empty string 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_a6lib_adcc817ae29dd20892faf53fd3a8b1bac}\label{class_a6lib_adcc817ae29dd20892faf53fd3a8b1bac}} 
+\index{A6lib@{A6lib}!handle@{handle}}
+\index{handle@{handle}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{handle()}{handle()}}
+{\footnotesize\ttfamily void A6lib\+::handle (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+the main handler of \mbox{\hyperlink{class_a6lib}{A6lib}} object. this function needs to be called inside main loop regularly, for callbacks to work correctly. \mbox{\Hypertarget{class_a6lib_ad5932ea0250881d449d566680a67833e}\label{class_a6lib_ad5932ea0250881d449d566680a67833e}} 
+\index{A6lib@{A6lib}!hang\+Up@{hang\+Up}}
+\index{hang\+Up@{hang\+Up}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{hang\+Up()}{hangUp()}}
+{\footnotesize\ttfamily void A6lib\+::hang\+Up (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_a6lib_a7ddb0b59879dcc59290b72a585231ef2}\label{class_a6lib_a7ddb0b59879dcc59290b72a585231ef2}} 
+\index{A6lib@{A6lib}!hard\+Reset@{hard\+Reset}}
+\index{hard\+Reset@{hard\+Reset}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{hard\+Reset()}{hardReset()}}
+{\footnotesize\ttfamily void A6lib\+::hard\+Reset (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{pin }\end{DoxyParamCaption})}
+
+This function will do a hard reset on module. It\textquotesingle{}s recommended to do this via an N\+M\+OS. Note\+: it will take some time for module to start + register for network. You may also need to reinitilize module with \mbox{\hyperlink{class_a6lib_a4c9b1bef86c734cb57e7962936ecf481}{A6lib\+::start()}}. 
+\begin{DoxyParams}{Parameters}
+{\em pin} & the pin number which is connected to module reset(\+R\+S\+T) pin. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_a6lib_a9503f1167ed6fd225aee3086b827803d}\label{class_a6lib_a9503f1167ed6fd225aee3086b827803d}} 
+\index{A6lib@{A6lib}!on\+S\+M\+S\+Received@{on\+S\+M\+S\+Received}}
+\index{on\+S\+M\+S\+Received@{on\+S\+M\+S\+Received}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{on\+S\+M\+S\+Received()}{onSMSReceived()}}
+{\footnotesize\ttfamily void A6lib\+::on\+S\+M\+S\+Received (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{_a6lib_8h_a0c0c0674e9fa2ea70a4a13b38abdc0f9}{sms\+\_\+rx\+\_\+cb\+\_\+t}}}]{cb }\end{DoxyParamCaption})}
+
+This function will register your callback and will call it when new S\+MS arrives. 
+\begin{DoxyParams}{Parameters}
+{\em cb} & pointer to callback function \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_a6lib_ac92651260eaefe715ed1e1dc798fa275}\label{class_a6lib_ac92651260eaefe715ed1e1dc798fa275}} 
+\index{A6lib@{A6lib}!on\+S\+M\+S\+Sent@{on\+S\+M\+S\+Sent}}
+\index{on\+S\+M\+S\+Sent@{on\+S\+M\+S\+Sent}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{on\+S\+M\+S\+Sent()}{onSMSSent()}}
+{\footnotesize\ttfamily void A6lib\+::on\+S\+M\+S\+Sent (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{_a6lib_8h_a7b74957a5e4992ea4364e91c175b5d7d}{sms\+\_\+tx\+\_\+cb\+\_\+t}}}]{cb }\end{DoxyParamCaption})}
+
+This function will register your callback and will call it when a S\+MS is sent. 
+\begin{DoxyParams}{Parameters}
+{\em cb} & pointer to callback function \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_a6lib_ac254b0457036a93d83e1a6fc296f57a0}\label{class_a6lib_ac254b0457036a93d83e1a6fc296f57a0}} 
+\index{A6lib@{A6lib}!on\+S\+M\+S\+Storage\+Full@{on\+S\+M\+S\+Storage\+Full}}
+\index{on\+S\+M\+S\+Storage\+Full@{on\+S\+M\+S\+Storage\+Full}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{on\+S\+M\+S\+Storage\+Full()}{onSMSStorageFull()}}
+{\footnotesize\ttfamily void A6lib\+::on\+S\+M\+S\+Storage\+Full (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{_a6lib_8h_a97f6ff1cf1ed894d22d58ebdb05b8bbf}{sms\+\_\+full\+\_\+cb\+\_\+t}}}]{cb }\end{DoxyParamCaption})}
+
+This function will register your callback and will call it when modem prefered storage area is full. 
+\begin{DoxyParams}{Parameters}
+{\em cb} & pointer to callback function \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_a6lib_add46e8926e5809cc7e33a7ad2817fcc5}\label{class_a6lib_add46e8926e5809cc7e33a7ad2817fcc5}} 
+\index{A6lib@{A6lib}!power\+Up@{power\+Up}}
+\index{power\+Up@{power\+Up}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{power\+Up()}{powerUp()}}
+{\footnotesize\ttfamily void A6lib\+::power\+Up (\begin{DoxyParamCaption}\item[{int}]{pin }\end{DoxyParamCaption})}
+
+this optional function will keep the P\+WR pin of modem in high T\+TL at start up to correctly powering module. Module needs this pin to be high T\+TL for about 2 sec. 
+\begin{DoxyParams}{Parameters}
+{\em pin} & the pin number which is connected to module P\+WR pin. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_a6lib_aad58cce8168f9554470f3afa854afb29}\label{class_a6lib_aad58cce8168f9554470f3afa854afb29}} 
+\index{A6lib@{A6lib}!read\+S\+MS@{read\+S\+MS}}
+\index{read\+S\+MS@{read\+S\+MS}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{read\+S\+M\+S()}{readSMS()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{struct_s_m_s_info}{S\+M\+S\+Info}} A6lib\+::read\+S\+MS (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{index }\end{DoxyParamCaption})}
+
+Read a S\+MS in modem prefered storage area 
+\begin{DoxyParams}{Parameters}
+{\em index} & sms index in storage area \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a \mbox{\hyperlink{struct_s_m_s_info}{S\+M\+S\+Info}} object contain S\+MS information(number+date+timestamp) on success, and if fail an empty \mbox{\hyperlink{struct_s_m_s_info}{S\+M\+S\+Info}} object. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_a6lib_a49996e929193a3a1942d58c884e919fb}\label{class_a6lib_a49996e929193a3a1942d58c884e919fb}} 
+\index{A6lib@{A6lib}!redial@{redial}}
+\index{redial@{redial}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{redial()}{redial()}}
+{\footnotesize\ttfamily void A6lib\+::redial (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_a6lib_a92586286549a825ad30f0045b6721e6d}\label{class_a6lib_a92586286549a825ad30f0045b6721e6d}} 
+\index{A6lib@{A6lib}!register\+Status\+To\+String@{register\+Status\+To\+String}}
+\index{register\+Status\+To\+String@{register\+Status\+To\+String}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{register\+Status\+To\+String()}{registerStatusToString()}}
+{\footnotesize\ttfamily String A6lib\+::register\+Status\+To\+String (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{_a6lib_8h_a0a43f46ad95cebb665a0d371219a6015}{Register\+Status}}}]{st }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{class_a6lib_a934e8451ed2125f0fee5bc720a99ed91}\label{class_a6lib_a934e8451ed2125f0fee5bc720a99ed91}} 
+\index{A6lib@{A6lib}!send\+Command@{send\+Command}}
+\index{send\+Command@{send\+Command}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{send\+Command()}{sendCommand()}}
+{\footnotesize\ttfamily String A6lib\+::send\+Command (\begin{DoxyParamCaption}\item[{const String \&}]{command,  }\item[{uint16\+\_\+t}]{reply\+\_\+timeout = {\ttfamily 2000} }\end{DoxyParamCaption})}
+
+Send new command to modem. command should be a valid AT command, otherwise modem will return error with corresponding error code. Note\+: you may want to check modem is busy or not with A6lib\+::is\+Busy(). 
+\begin{DoxyParams}{Parameters}
+{\em command} & the command to be sent with AT prefix \\
+\hline
+{\em reply\+\_\+timeout} & the timeout for modem to reply \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+if success an string contain modem reply, otherwise contain error code 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_a6lib_a0ce431632e4a5e4d26c2d95c83fe7ee5}\label{class_a6lib_a0ce431632e4a5e4d26c2d95c83fe7ee5}} 
+\index{A6lib@{A6lib}!send\+P\+DU@{send\+P\+DU}}
+\index{send\+P\+DU@{send\+P\+DU}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{send\+P\+D\+U()}{sendPDU()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily bool A6lib\+::send\+P\+DU (\begin{DoxyParamCaption}\item[{const String \&}]{number,  }\item[{const String \&}]{content }\end{DoxyParamCaption})}
+
+Send an A\+S\+C\+II S\+MS in P\+DU mode. 
+\begin{DoxyParams}{Parameters}
+{\em number} & the detination phone number which should begin with international code \\
+\hline
+{\em content} & the S\+MS content in A\+S\+C\+II and up to 160 chars \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true on success 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_a6lib_aa9fe9166fe1d7b39bd40dea833844377}\label{class_a6lib_aa9fe9166fe1d7b39bd40dea833844377}} 
+\index{A6lib@{A6lib}!send\+P\+DU@{send\+P\+DU}}
+\index{send\+P\+DU@{send\+P\+DU}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{send\+P\+D\+U()}{sendPDU()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily bool A6lib\+::send\+P\+DU (\begin{DoxyParamCaption}\item[{const String \&}]{number,  }\item[{wchar\+\_\+t $\ast$}]{content,  }\item[{uint8\+\_\+t}]{len }\end{DoxyParamCaption})}
+
+Send a U\+C\+S2 S\+MS in P\+DU mode. 
+\begin{DoxyParams}{Parameters}
+{\em number} & the detination phone number which should begin with international code \\
+\hline
+{\em content} & the S\+MS content coded in U\+C\+S2 format and up to 70 chars. \\
+\hline
+{\em len} & the number of U\+C\+S2 chars in {\itshape content} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true on success 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_a6lib_aaf7efdb36c3d8c419a0bf26d5220f91d}\label{class_a6lib_aaf7efdb36c3d8c419a0bf26d5220f91d}} 
+\index{A6lib@{A6lib}!send\+S\+MS@{send\+S\+MS}}
+\index{send\+S\+MS@{send\+S\+MS}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{send\+S\+M\+S()}{sendSMS()}}
+{\footnotesize\ttfamily bool A6lib\+::send\+S\+MS (\begin{DoxyParamCaption}\item[{const String \&}]{number,  }\item[{const String \&}]{text }\end{DoxyParamCaption})}
+
+Send S\+MS (in text mode) to specified number. 
+\begin{DoxyParams}{Parameters}
+{\em number} & valid destination number without + \\
+\hline
+{\em text} & S\+MS content in ascii encoding \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true on success 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_a6lib_abff3a80733dc0964d95ea9b981515f26}\label{class_a6lib_abff3a80733dc0964d95ea9b981515f26}} 
+\index{A6lib@{A6lib}!set\+Char\+Set@{set\+Char\+Set}}
+\index{set\+Char\+Set@{set\+Char\+Set}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{set\+Char\+Set()}{setCharSet()}}
+{\footnotesize\ttfamily bool A6lib\+::set\+Char\+Set (\begin{DoxyParamCaption}\item[{const String \&}]{charset }\end{DoxyParamCaption})}
+
+set the module charset. 
+\begin{DoxyParams}{Parameters}
+{\em charset} & the required charset. Could be on of the following\+: G\+SM U\+C\+S2 H\+EX P\+C\+C\+P936 \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true on success. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_a6lib_a8d6a63b19eb9bf6d3edb359b05dbc08e}\label{class_a6lib_a8d6a63b19eb9bf6d3edb359b05dbc08e}} 
+\index{A6lib@{A6lib}!set\+Prefered\+Storage@{set\+Prefered\+Storage}}
+\index{set\+Prefered\+Storage@{set\+Prefered\+Storage}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{set\+Prefered\+Storage()}{setPreferedStorage()}}
+{\footnotesize\ttfamily bool A6lib\+::set\+Prefered\+Storage (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{_a6lib_8h_a683c3425c199702a4b8b13f7f2518af5}{S\+M\+S\+Storage\+Area}}}]{area }\end{DoxyParamCaption})}
+
+Set the modem prefered storage area. It\textquotesingle{}s set to S\+M\+S\+Storage\+Area\+::\+ME by defualt. 
+\begin{DoxyParams}{Parameters}
+{\em area} & could be on of the S\+M\+S\+Storage\+Area \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true on success 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_a6lib_a4042e45892004cd9273f1b1c85d86ffc}\label{class_a6lib_a4042e45892004cd9273f1b1c85d86ffc}} 
+\index{A6lib@{A6lib}!set\+Vol@{set\+Vol}}
+\index{set\+Vol@{set\+Vol}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{set\+Vol()}{setVol()}}
+{\footnotesize\ttfamily void A6lib\+::set\+Vol (\begin{DoxyParamCaption}\item[{byte}]{level }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_a6lib_a8b64136d0c8aba6af51568ff93a5455e}\label{class_a6lib_a8b64136d0c8aba6af51568ff93a5455e}} 
+\index{A6lib@{A6lib}!soft\+Reset@{soft\+Reset}}
+\index{soft\+Reset@{soft\+Reset}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{soft\+Reset()}{softReset()}}
+{\footnotesize\ttfamily void A6lib\+::soft\+Reset (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+This function implement a software restart on module(if suppoerted). Note\+: it will take some time for module to start + register for network. You may also need to reinitilize module with \mbox{\hyperlink{class_a6lib_a4c9b1bef86c734cb57e7962936ecf481}{A6lib\+::start()}}. \mbox{\Hypertarget{class_a6lib_a4c9b1bef86c734cb57e7962936ecf481}\label{class_a6lib_a4c9b1bef86c734cb57e7962936ecf481}} 
+\index{A6lib@{A6lib}!start@{start}}
+\index{start@{start}!A6lib@{A6lib}}
+\subsubsection{\texorpdfstring{start()}{start()}}
+{\footnotesize\ttfamily bool A6lib\+::start (\begin{DoxyParamCaption}\item[{unsigned long}]{baud,  }\item[{uint8\+\_\+t}]{max\+\_\+retry }\end{DoxyParamCaption})}
+
+This is the \mbox{\hyperlink{class_a6lib}{A6lib}} object initlizer routine. you must call this usually once in setup routine. 
+\begin{DoxyParams}{Parameters}
+{\em baud} & the desired baud rate to start with \\
+\hline
+{\em max\+\_\+retry} & the maximum number of time \mbox{\hyperlink{class_a6lib}{A6lib}} object try to etablish connection. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true on success 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{_a6lib_8h}{A6lib.\+h}}\item 
+\mbox{\hyperlink{_a6lib_8cpp}{A6lib.\+cpp}}\end{DoxyCompactItemize}

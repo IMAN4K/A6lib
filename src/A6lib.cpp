@@ -5,6 +5,7 @@ extern "C" {
 #include "pdu.h"
 }
 
+///@cond INTERNAL
 #define A6_STATUS_OK 0
 #define A6_NOTOK 1
 #define A6_TIMEOUT 2
@@ -37,6 +38,7 @@ extern "C" {
 #define CMGF_CMD "+CMGF"
 #define NOTIF_CMTI "+CMTI"
 #define NOTIF_CIEV "+CIEV"
+#define CME_CMD "+CME"
 #define UCS2 "UCS2"
 #define CR "\r"
 #define LF "\n"
@@ -99,15 +101,31 @@ void to_hex_str(String* in, uint8_t* pdu, uint8_t len) {
 		in->concat(hex(pdu[i]));
 	}
 }
-
+///@endcond
 
 /*!
- * \class A6lib Constructs A6lib object.
- * \brief
+ * \class A6lib
+ * \brief A library for controlling Ai-Thinker A6 modem.
+ *
+ * An Arduino library for communicating with the AI-Thinker A6 GSM module, It currently supports ESP8266 and AVR architectures.
+ * This small lib mainly intended for Ai-Thinker A6 modem but may possiblly work with other GSM modems supporting standard AT command set (e.g SIM800,SIM900,...).
+ * Using this lib is straightforward, you can create an object of A6lib via HardwareSerial, SoftwareSerial or just two pin number for built in SoftwareSerial.
+ * Then you usually should power up your module (A6lib::powerUp()) and initlize A6lib object to start communicating with modem at desired baud rate. 
+ * from now on, use public APIs to control your modem and get informations from it.
+ *
+ * This lib has been modified to be asynchronous, so currently you can pass your functions to register APIs to catch these events:
+ *  -# SMS sent
+ *  -# SMS recevied
+ *  -# Storage area is full
+ *
+ * \note A note about A6lib::addHandler(): When you have some important tasks in your code for example reading keypad etc, you can add a main function for running those tasks and pass it to 
+ * A6lib::addHandler(), when you pass a valid function, lib will call it whenever it's in waiting state (waiting for modem to reply) and thus it'll prevent locking in that precious time.
+ *
+ * To get start you can check out examples directory.
  */
 
  /*!
-  * \brief A6lib::A6lib Constructs A6lib object with the given serial port.
+  * Constructs A6lib object with the given serial \a port.
   * \param port HardwareSerial object for use inside A6lib.
   */
 A6lib::A6lib(HardwareSerial* port) : stream{ port } {
@@ -117,7 +135,7 @@ A6lib::A6lib(HardwareSerial* port) : stream{ port } {
 }
 
 /*!
- * \brief A6lib::A6lib Constructs A6lib object with the given serial port.
+ * Constructs A6lib object with the given serial port.
  * \param port SoftwareSerial object for use inside A6lib
  */
 A6lib::A6lib(SoftwareSerial* port) : stream{ port } {
@@ -127,7 +145,7 @@ A6lib::A6lib(SoftwareSerial* port) : stream{ port } {
 }
 
 /*!
- * \brief A6lib::A6lib Constructs A6lib object with the given pin numbers. this is done by creating new SoftwareSerial object.
+ * Constructs A6lib object with the given pin numbers. this is done by creating new SoftwareSerial object.
  * \param tx_pin SoftwareSerial TX pin
  * \param rx_pin SoftwareSerial RX pin
  */
@@ -139,7 +157,7 @@ A6lib::A6lib(uint8_t rx_pin, uint8_t tx_pin) {
 }
 
 /*!
- * \brief A6lib::~A6lib Destroys A6lib object.
+ * Destroys A6lib object.
  */
 A6lib::~A6lib() {
 	if (ports.testState(PortState::New_SoftwareSerial) && ports.sport)
@@ -147,7 +165,7 @@ A6lib::~A6lib() {
 }
 
 /*!
- * \brief A6lib::start This is the A6lib object initlizer routine.
+ * This is the A6lib object initlizer routine.
  * you must call this usually once in setup routine.
  * \param baud the desired baud rate to start with
  * \param max_retry the maximum number of time A6lib object try to etablish connection.
@@ -172,10 +190,11 @@ bool A6lib::start(unsigned long baud, uint8_t max_retry) {
 }
 
 /*!
- * \brief A6lib::handle the main handler of A6lib object.
+ * the main handler of A6lib object.
  * this function needs to be called inside main loop regularly, for callbacks to work correctly.
  */
 void A6lib::handle() {
+	/* there are some notifications, mixed with last modem reply */
 	if (lastInterestedReply.length() != 0) {
 		parseForNotifications(&lastInterestedReply);
 		lastInterestedReply.remove(0);
@@ -217,14 +236,14 @@ void A6lib::parseForNotifications(String* data) {
 
 	if (cmtiStart != -1) {
 		LOG("New SMS received");
-		DEBUG_PORT.print(*data);
-		SMSInfo info;
-		uint8_t indx = 0;
-		auto end = data->indexOf("\",");
-		indx = data->substring(end + 2).toInt();
-		info = readSMS(indx);
-		if (sms_rx_cb)
+		if (sms_rx_cb) {
+			SMSInfo info;
+			uint8_t indx = 0;
+			auto end = data->indexOf("\",");
+			indx = data->substring(end + 2).toInt();
+			info = readSMS(indx);
 			sms_rx_cb(indx, info);
+		}
 	} else if (cmgsStart != -1) {
 		LOG("SMS sent");
 		if (sms_tx_cb)
@@ -242,8 +261,8 @@ bool A6lib::hasNotifications(const String& arg) {
 }
 
 /*!
- * \brief A6lib::powerUp this optional function will keep the PWR pin of modem in high TTL at start up to correctly powering module.
- * Module needs this pin to be high TTl for about 2 sec.
+ * this optional function will keep the PWR pin of modem in high TTL at start up to correctly powering module.
+ * Module needs this pin to be high TTL for about 2 sec.
  * \param pin the pin number which is connected to module PWR pin.
  */
 void A6lib::powerUp(int pin) {
@@ -255,9 +274,10 @@ void A6lib::powerUp(int pin) {
 }
 
 /*!
- * \brief A6lib::hardReset This function will do a hard reset on module.
+ * This function will do a hard reset on module.
  * It's recommended to do this via an NMOS.
  * Note: it will take some time for module to start + register for network.
+ * You may also need to reinitilize module with A6lib::start().
  * \param pin the pin number which is connected to module reset(RST) pin.
  */
 void A6lib::hardReset(uint8_t pin) {
@@ -267,15 +287,16 @@ void A6lib::hardReset(uint8_t pin) {
 }
 
 /*!
- * \brief A6lib::softReset This function implement a software restart on module.
- *  Note: it will take some time for module to start + register for network.
+ * This function implement a software restart on module(if suppoerted).
+ * Note: it will take some time for module to start + register for network.
+ * You may also need to reinitilize module with A6lib::start().
  */
 void A6lib::softReset() {
 	cmd(AT_PREFIX RST_CMD, PLACE_HOLDER, PLACE_HOLDER, 0, 0, nullptr);
 }
 
 /*!
-* \brief A6lib::getFirmWareVer Get the revision identification or firmware version of modem.
+* Get the revision identification or firmware version of modem.
 * \return If success a String contain firmware version, and if fail an empty string.
 */
 String A6lib::getFirmWareVer() {
@@ -290,7 +311,7 @@ String A6lib::getFirmWareVer() {
 }
 
 /*!
-* \brief A6lib::getRSSI Get the modem signal strength based on RSSI(measured as dBm).
+* Get the modem signal strength based on RSSI(measured as dBm).
 * \return If success a value between -113dBm and -51dBm and if fail 0.
 */
 int8_t A6lib::getRSSI() {
@@ -298,12 +319,12 @@ int8_t A6lib::getRSSI() {
 	int8_t rssi = 0;
 	if (cmd(AT_PREFIX CSQ_CMD, RES_OK, CSQ_CMD, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, &response)) {
 		/*
-		return value:
-		0 -> -113 dBm or less
-		1 -> -111 dBm
-		2-30 -> -109....-53 dBm
-		31 -> -51 dBm or greater
-		99 -> Uknown
+			return value:
+			0 -> -113 dBm or less
+			1 -> -111 dBm
+			2-30 -> -109....-53 dBm
+			31 -> -51 dBm or greater
+			99 -> Uknown
 		*/
 		normalize_response(&response);
 		auto sub = response.substring(response.indexOf(':') + 2, response.indexOf(','));
@@ -321,23 +342,21 @@ int8_t A6lib::getRSSI() {
 }
 
 /*!
-* \brief A6lib::getSignalQuality Get the modem signal quality level.
-* \return if success a value between 0-100 and if fail 0.
+* Get the modem signal quality level.
+* \return if success a value between 0-100 and if fail 255.
 */
 uint8_t A6lib::getSignalQuality() {
 	auto rssi = getRSSI();
 	if (rssi == 0)
-		return rssi;
+		return 255;
 
 	/* convert RSSI to quality */
 	uint8_t q;
 	if (rssi <= -100) {
 		q = 0;
-	}
-	else if (rssi >= -50) {
+	} else if (rssi >= -50) {
 		q = 100;
-	}
-	else {
+	} else {
 		q = 2 * (rssi + 100);
 	}
 
@@ -345,14 +364,12 @@ uint8_t A6lib::getSignalQuality() {
 }
 
 /*!
-* \brief A6lib::getRealTimeClock Get the real time from modem.
+* Get the real time from modem.
 * \return if success a string contain time in format yy/mm/dd,hh:mm:ss+zz, if fail an empty string.
 */
 String A6lib::getRealTimeClock() {
 	String response;
-	String command(AT_PREFIX CCLK_CMD);
-	command.concat('?');
-	if (cmd(command.c_str(), RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, &response)) {
+	if (cmd(AT_PREFIX CCLK_CMD "?", RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, &response)) {
 		normalize_response(&response);
 		return response.substring(response.indexOf(':') + 3, response.length() - 1);
 	}
@@ -361,7 +378,7 @@ String A6lib::getRealTimeClock() {
 }
 
 /*!
-* \brief A6lib::getIMEI Get the modem IMEI.
+* Get the modem IMEI.
 * \return if success a string contain IMEI number, if fail an empty string.
 */
 String A6lib::getIMEI() {
@@ -375,28 +392,24 @@ String A6lib::getIMEI() {
 }
 
 /*!
- * \brief A6lib::getSMSSca Get the current SMS service center address from modem.
+ * Get the current SMS service center address from modem.
  * \return if success a string contain SCA, if fail an empty string
  */
 String A6lib::getSMSSca() {
 	String response;
-	String command(AT_PREFIX CSCA_CMD);
-	command.concat('?');
-	if (cmd(command.c_str(), RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, &response))
+	if (cmd(AT_PREFIX CSCA_CMD "?", RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, &response))
 		return response.substring(response.indexOf(CSCA_CMD ":") + 8, response.indexOf(',') - 1);
 	
 	return response;
 }
 
 /*!
-* \brief A6lib::getRegisterStatus Get the network registration status of modem.
+* Get the network registration status of modem.
 * \return on of the ::RegisterStatus value
 */
 RegisterStatus A6lib::getRegisterStatus() {
 	String response;
-	String command(AT_PREFIX CREG_CMD);
-	command.concat('?');
-	if (cmd(command.c_str(), RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, &response)) {
+	if (cmd(AT_PREFIX CREG_CMD "?", RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, &response)) {
 		normalize_response(&response);
 		auto sub = response.substring(response.indexOf(':') + 2, response.indexOf(','));
 		if (sub.length() != 0)
@@ -432,8 +445,9 @@ String A6lib::registerStatusToString(RegisterStatus st) {
 }
 
 /*!
- * \brief A6lib::sendCommand Send new command to modem.
+ * Send new command to modem.
  * command should be a valid AT command, otherwise modem will return error with corresponding error code.
+ * Note: you may want to check modem is busy or not with A6lib::isBusy().
  * \param command the command to be sent with AT prefix
  * \param reply_timeout the timeout for modem to reply
  * \return if success an string contain modem reply, otherwise contain error code
@@ -524,19 +538,18 @@ void A6lib::enableSpeaker(byte enable) {
 }
 
 /*!
- * \brief A6lib::setPreferedStorage Set the modem prefered storage area.
+ * Set the modem prefered storage area.
  * It's set to SMSStorageArea::ME by defualt.
  * \param area could be on of the SMSStorageArea
  * \return true on success
  */
 bool A6lib::setPreferedStorage(SMSStorageArea area) {
-	String command(AT_PREFIX CPMS_CMD);
-	command.concat('=');
+	String command(AT_PREFIX CPMS_CMD "=");
 	switch (area) {
+	default:
 	case ME:
 		command.concat("ME,ME,ME");
 		break;
-	default:
 	case SM:
 		command.concat("SM,SM,SM");
 		break;
@@ -546,7 +559,7 @@ bool A6lib::setPreferedStorage(SMSStorageArea area) {
 }
 
 /*!
- * \brief A6lib::getSMSList Get the list of available SMS in prefered storage area.
+ * Get the list of available SMS in prefered storage area.
  * \param buff input buffer to store SMS indexes.
  * \param len size of buff
  * \param record on of the SMSRecordType.
@@ -556,9 +569,7 @@ int8_t A6lib::getSMSList(int8_t* buff, uint8_t len, SMSRecordType record) {
 	if (buff == NULL)
 		return -1;
 
-	String command(AT_PREFIX CMGL_CMD);
-	command.concat('=');
-	command.concat('"');	
+	String command(AT_PREFIX CMGL_CMD "=\"");
 	switch (record) {
 	default:
 	case All:
@@ -599,7 +610,7 @@ int8_t A6lib::getSMSList(int8_t* buff, uint8_t len, SMSRecordType record) {
 }
 
 /*!
- * \brief A6lib::sendSMS Send SMS (in text mode) to specified number.
+ * Send SMS (in text mode) to specified number.
  * \param number valid destination number without +
  * \param text SMS content in ascii encoding
  * \return true on success
@@ -612,9 +623,7 @@ bool A6lib::sendSMS(const String& number, const String& text) {
 	}
 
 	LOG("Sending SMS to %s", number.c_str());
-	String command(AT_PREFIX CMGS_CMD);
-	command.concat('=');
-	command.concat('"');
+	String command(AT_PREFIX CMGS_CMD "=\"");
 	command.concat(number);
 	command.concat('"');
 	auto success = cmd(command.c_str(), ">", PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, NULL);
@@ -628,7 +637,7 @@ bool A6lib::sendSMS(const String& number, const String& text) {
 }
 
 /*!
- * \brief A6lib::sendPDU Send an ASCII SMS in PDU mode.
+ * Send an ASCII SMS in PDU mode.
  * \param number the detination phone number which should begin with international code
  * \param content the SMS content in ASCII and up to 160 chars
  * \return true on success
@@ -667,8 +676,7 @@ bool A6lib::sendPDU(const String& number, const String& content) {
 	LOG("PDU mode: encode ASCII SMS to %d byte PDU", nbyte);
 	if (nbyte > 0) {
 		{
-			String command(AT_PREFIX CMGS_CMD);
-			command.concat('=');
+			String command(AT_PREFIX CMGS_CMD "=");
 			auto tpdu_len = nbyte - ceilf(sca.length() / 2.0) - 2;
 			command.concat(String((int)tpdu_len, DEC));
 			success = cmd(command.c_str(), ">", PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, nullptr);
@@ -686,7 +694,7 @@ bool A6lib::sendPDU(const String& number, const String& content) {
 }
 
 /*!
- * \brief A6lib::sendPDU Send a UCS2 SMS in PDU mode.
+ * Send a UCS2 SMS in PDU mode.
  * \param number the detination phone number which should begin with international code
  * \param content the SMS content coded in UCS2 format and up to 70 chars.
  * \param len the number of UCS2 chars in \a content
@@ -726,8 +734,7 @@ bool A6lib::sendPDU(const String& number, wchar_t* content, uint8_t len) {
 	LOG("PDU mode: encode UCS2 SMS to %d byte PDU", nbyte);
 	if (nbyte > 0) {
 		{
-			String command(AT_PREFIX CMGS_CMD);
-			command.concat('=');
+			String command(AT_PREFIX CMGS_CMD "=");
 			auto tpdu_len = nbyte - ceilf(sca.length() / 2.0) - 2;
 			command.concat(String((int)tpdu_len, DEC));
 			success = cmd(command.c_str(), ">", PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, nullptr);
@@ -745,14 +752,13 @@ bool A6lib::sendPDU(const String& number, wchar_t* content, uint8_t len) {
 }
 
 /*!
- * \brief A6lib::readSMS Read a SMS in modem prefered storage area
+ * Read a SMS in modem prefered storage area
  * \param index sms index in storage area
  * \return a SMSInfo object contain SMS information(number+date+timestamp) on success, and if fail an empty SMSInfo object.
  */
 SMSInfo A6lib::readSMS(uint8_t index) {
 	String response;
-	String command(AT_PREFIX CMGR_CMD);
-	command.concat('=');
+	String command(AT_PREFIX CMGR_CMD "=");
 	command.concat(String(index, DEC));
 
 	SMSInfo info;
@@ -770,20 +776,19 @@ SMSInfo A6lib::readSMS(uint8_t index) {
 }
 
 /*!
- * \brief A6lib::deleteSMS Delete a SMS from modem prefered storage area.
+ * Delete a SMS from modem prefered storage area.
  * \param index sms index in storage area
  * \return true on success
  */
 bool A6lib::deleteSMS(uint8_t index) {
-	String command(AT_PREFIX CMGD_CMD);
-	command.concat('=');
+	String command(AT_PREFIX CMGD_CMD "=");
 	command.concat(String(index, DEC));
 
 	return cmd(command.c_str(), RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, NULL);
 }
 
 /*!
- * \brief A6lib::setCharSet set the module charset.
+ * set the module charset.
  * \param charset the required charset.
  * Could be on of the following:
  * GSM
@@ -793,15 +798,14 @@ bool A6lib::deleteSMS(uint8_t index) {
  * \return true on success.
  */
 bool A6lib::setCharSet(const String &charset) {
-	String command(AT_PREFIX CSCS_CMD);
-	command.concat('=');
+	String command(AT_PREFIX CSCS_CMD "=");
 	command.concat(charset);
 
 	return cmd(command.c_str(), RES_OK, PLACE_HOLDER, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, nullptr);
 }
 
 /*!
- * \brief A6lib::addHandler Add the A6lib main handler callback.
+ * Add the A6lib main handler callback.
  * A6lib will call this handler when it is inside the waiting routine. it'll prevent lock in your code when you have some critical tasks to run.
  * Note: The result of passing loop() to this function is undefined!
  */
@@ -813,7 +817,7 @@ void A6lib::addHandler(void_cb_t cb) {
 }
 
 /*!
- * \brief A6lib::onSMSSent This function will register your callback and will call it when a SMS is sent.
+ * This function will register your callback and will call it when a SMS is sent.
  * \param cb pointer to callback function
  */
 void A6lib::onSMSSent(sms_tx_cb_t cb) {
@@ -824,7 +828,7 @@ void A6lib::onSMSSent(sms_tx_cb_t cb) {
 }
 
 /*!
- * \brief A6lib::onSMSReceived This function will register your callback and will call it when new SMS arrives.
+ * This function will register your callback and will call it when new SMS arrives.
  * \param cb pointer to callback function
  */
 void A6lib::onSMSReceived(sms_rx_cb_t cb) {
@@ -835,7 +839,7 @@ void A6lib::onSMSReceived(sms_rx_cb_t cb) {
 }
 
 /*!
- * \brief A6lib::onSMSStorageFull This function will register your callback and will call it when modem prefered storage area is full.
+ * This function will register your callback and will call it when modem prefered storage area is full.
  * \param cb pointer to callback function
  */
 void A6lib::onSMSStorageFull(sms_full_cb_t cb) {
@@ -846,7 +850,7 @@ void A6lib::onSMSStorageFull(sms_full_cb_t cb) {
 }
 
 
-
+///@cond INTERNAL
 bool A6lib::begin(unsigned long baud) {
 	bool success = true;
 	stream->flush();
@@ -894,7 +898,7 @@ unsigned long A6lib::detectBaudRate() {
 	LOG("Autodetecting serial baud rate...");
 	unsigned long baud = 0;
 	unsigned long rates[] = { 9600, 115200 };
-	for (int i = 0; i < countof(rates); i++) {
+	for (uint8_t i = 0; i < countof(rates); i++) {
 		baud = rates[i];
 		LOG("Trying baud rate %lu...", baud);
 		if (ports.isSoftwareSerial())
@@ -903,7 +907,7 @@ unsigned long A6lib::detectBaudRate() {
 			ports.hport->begin(baud);
 
 		delay(100);
-		if (cmd("AT", RES_OK, "+CME", A6_CMD_TIMEOUT / 2, A6_CMD_MAX_RETRY * 2, NULL))
+		if (cmd(AT_PREFIX, RES_OK, CME_CMD, A6_CMD_TIMEOUT / 2, A6_CMD_MAX_RETRY * 2, NULL))
 			return baud;
 	}
 	LOG("Couldn't detect the rate.");
@@ -921,8 +925,7 @@ bool A6lib::setBaudRate(unsigned long baud) {
 		return true;
 
 	LOG("Setting baud rate(%lu) on the module...", baud);
-	String command(AT_PREFIX IPR_CMD);
-	command.concat('=');
+	String command(AT_PREFIX IPR_CMD "=");
 	command.concat(baud);
 	if (cmd(command.c_str(), RES_OK, IPR_CMD "=", A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, NULL)) {
 		if (ports.isSoftwareSerial())
@@ -1007,3 +1010,4 @@ bool A6lib::wait(const char *resp1, const char *resp2, uint16_t timeout, String 
 
 	return success;
 }
+///@endcond

@@ -42,12 +42,12 @@ void setup() {
 	DEBUG_PORT.begin(115200);
 	delay(100);
 #endif
-	A6.powerUp(PWR_PIN);
-	A6.start(9600, 3);
 	A6.onSMSReceived(&new_sms_event);
 	A6.onSMSSent(&sms_sent_event);
 	A6.onSMSStorageFull(&storage_full_event);
 	A6.addHandler(&run);
+	A6.powerUp(PWR_PIN);
+	A6.start(9600, 3);
 
 	DEBUG_PORT.printf("\nModem info: \n");
 	DEBUG_PORT.printf("IMEI: %s\n", A6.getIMEI().c_str());

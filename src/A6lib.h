@@ -124,8 +124,14 @@ public:
 	void onSMSStorageFull(sms_full_cb_t);
 
 	String sendCommand(const String& command, uint16_t reply_timeout = 2000);
+	///@cond INTERNAL
+	bool isBusy() {
+		return isWaiting;
+	}
+	///@endcond
 
 protected:
+	///@cond INTERNAL
 	bool begin(unsigned long baud);
 
 	unsigned long detectBaudRate();
@@ -136,11 +142,11 @@ protected:
 
 	void parseForNotifications(String* data);
 	bool hasNotifications(const String& arg);
-	String lastInterestedReply;
 
 	String readFromSerial() const;
 	bool cmd(const char *command, const char *resp1, const char *resp2, uint16_t timeout, uint8_t max_retry, String *response);
 	bool wait(const char *resp1, const char *resp2, uint16_t timeout, String *response);
+	///@endcond
 
 private:
 	Stream* stream = nullptr;
@@ -169,6 +175,8 @@ private:
 	sms_rx_cb_t sms_rx_cb;
 	sms_tx_cb_t sms_tx_cb;
 	sms_full_cb_t sms_full_cb;
+
+	String lastInterestedReply;
 };
 
 #endif // A6LIB_H

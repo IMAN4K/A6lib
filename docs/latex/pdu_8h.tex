@@ -1,0 +1,70 @@
+\hypertarget{pdu_8h}{}\section{pdu.\+h File Reference}
+\label{pdu_8h}\index{pdu.\+h@{pdu.\+h}}
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$wchar.\+h$>$}\newline
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{pdu_8h_a9166de4e80d6c112240532f771ad48d4}{pdu\+\_\+encode}} (const char $\ast$sca, const char $\ast$phone, const char $\ast$text, uint8\+\_\+t text\+\_\+len, uint8\+\_\+t $\ast$pdu, uint8\+\_\+t pdu\+\_\+size)
+\begin{DoxyCompactList}\small\item\em Encode input S\+MS {\itshape text} (which is coded in A\+S\+C\+II) into a S\+M\+S-\/\+S\+U\+B\+M\+IT pdu. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{pdu_8h_a4f8ccb811dd879dab5bbcefeb140ecca}{pdu\+\_\+encodew}} (const char $\ast$sca, const char $\ast$phone, const wchar\+\_\+t $\ast$text, uint8\+\_\+t text\+\_\+len, uint8\+\_\+t $\ast$pdu, uint8\+\_\+t pdu\+\_\+size)
+\begin{DoxyCompactList}\small\item\em Encode input S\+MS {\itshape text} (which is coded in U\+C\+S2) into a S\+M\+S-\/\+S\+U\+B\+M\+IT pdu. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{pdu_8h_a9166de4e80d6c112240532f771ad48d4}\label{pdu_8h_a9166de4e80d6c112240532f771ad48d4}} 
+\index{pdu.\+h@{pdu.\+h}!pdu\+\_\+encode@{pdu\+\_\+encode}}
+\index{pdu\+\_\+encode@{pdu\+\_\+encode}!pdu.\+h@{pdu.\+h}}
+\subsubsection{\texorpdfstring{pdu\+\_\+encode()}{pdu\_encode()}}
+{\footnotesize\ttfamily int pdu\+\_\+encode (\begin{DoxyParamCaption}\item[{const char $\ast$}]{sca,  }\item[{const char $\ast$}]{phone,  }\item[{const char $\ast$}]{text,  }\item[{uint8\+\_\+t}]{text\+\_\+len,  }\item[{uint8\+\_\+t $\ast$}]{pdu,  }\item[{uint8\+\_\+t}]{pdu\+\_\+size }\end{DoxyParamCaption})}
+
+
+
+Encode input S\+MS {\itshape text} (which is coded in A\+S\+C\+II) into a S\+M\+S-\/\+S\+U\+B\+M\+IT pdu. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sca} & a null terminated string contain S\+MS service center address \\
+\hline
+{\em phone} & a null terminated string contain destination phone number \\
+\hline
+{\em text} & the S\+MS content in A\+S\+C\+II \\
+\hline
+{\em text\+\_\+len} & the number of chars in S\+MS content(could be up to 160 char long) \\
+\hline
+{\em pdu} & the input buffer which is going to hold the final pdu \\
+\hline
+{\em pdu\+\_\+size} & the size of input pdu buffer \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+if success a positive value represent number of pdu octets written, if fail a negative value represent error code 
+\end{DoxyReturn}
+\mbox{\Hypertarget{pdu_8h_a4f8ccb811dd879dab5bbcefeb140ecca}\label{pdu_8h_a4f8ccb811dd879dab5bbcefeb140ecca}} 
+\index{pdu.\+h@{pdu.\+h}!pdu\+\_\+encodew@{pdu\+\_\+encodew}}
+\index{pdu\+\_\+encodew@{pdu\+\_\+encodew}!pdu.\+h@{pdu.\+h}}
+\subsubsection{\texorpdfstring{pdu\+\_\+encodew()}{pdu\_encodew()}}
+{\footnotesize\ttfamily int pdu\+\_\+encodew (\begin{DoxyParamCaption}\item[{const char $\ast$}]{sca,  }\item[{const char $\ast$}]{phone,  }\item[{const wchar\+\_\+t $\ast$}]{text,  }\item[{uint8\+\_\+t}]{text\+\_\+len,  }\item[{uint8\+\_\+t $\ast$}]{pdu,  }\item[{uint8\+\_\+t}]{pdu\+\_\+size }\end{DoxyParamCaption})}
+
+
+
+Encode input S\+MS {\itshape text} (which is coded in U\+C\+S2) into a S\+M\+S-\/\+S\+U\+B\+M\+IT pdu. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sca} & a null terminated string contain S\+MS service center address \\
+\hline
+{\em phone} & a null terminated string contain destination phone number \\
+\hline
+{\em text} & the S\+MS content coded in U\+C\+S2 coding scheme \\
+\hline
+{\em text\+\_\+len} & the number of U\+C\+S2 chars in S\+MS content(could be up to 70 char long) \\
+\hline
+{\em pdu} & the input buffer which is going to hold the final pdu \\
+\hline
+{\em pdu\+\_\+size} & the size of input pdu buffer \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+if success a positive value represent number of pdu octets written, if fail a negative value represent error code 
+\end{DoxyReturn}
