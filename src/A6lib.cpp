@@ -416,7 +416,7 @@ RegisterStatus A6lib::getRegisterStatus() {
 			return static_cast<RegisterStatus>(sub.toInt());
 	}
 
-	return RegisterStatus::Unknow;
+	return RegisterStatus::Unknown;
 }
 
 String A6lib::registerStatusToString(RegisterStatus st) {
@@ -433,7 +433,7 @@ String A6lib::registerStatusToString(RegisterStatus st) {
 	case Register_Denied:
 		return String("registration denied");
 		break;
-	case Unknow:
+	case Unknown:
 		return String("unknown");
 		break;
 	case Registered_Roaming:
@@ -660,6 +660,9 @@ bool A6lib::sendPDU(const String& number, const String& content) {
 	}
 
 	LOG("Send PDU to %s", number.c_str());
+	if (sca.charAt(0) == '+')
+		sca.remove(0, 1);
+
 	if (sca.startsWith("00"))
 		sca.remove(0, 2);
 	else if (sca.startsWith("0"))
@@ -718,6 +721,9 @@ bool A6lib::sendPDU(const String& number, wchar_t* content, uint8_t len) {
 	}
 
 	LOG("Send PDU to %s", number.c_str());
+	if (sca.charAt(0) == '+')
+		sca.remove(0, 1);
+
 	if (sca.startsWith("00"))
 		sca.remove(0, 2);
 	else if (sca.startsWith("0"))

@@ -58,7 +58,7 @@ enum RegisterStatus {
 	Registered_HomeNetwork = 1,
 	Searching_To_Register = 2,
 	Register_Denied = 3,
-	Unknow = 4,
+	Unknown = 4,
 	Registered_Roaming = 5,
 };
 
