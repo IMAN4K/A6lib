@@ -1,35 +1,54 @@
-#######################################
-# A6 GSM communication module
-# (esp8266)
-#######################################
+A6lib          KEYWORD1
+callInfo       KEYWORD1
+call_direction KEYWORD1
+call_mode      KEYWORD1
+callInfo       KEYWORD1
+CharSet        KEYWORD1
+RegisterStatus KEYWORD1
+SMSInfo        KEYWORD1
+SMSStorageArea KEYWORD1
+SMSRecordType  KEYWORD1
 
-#######################################
-# Datatypes (KEYWORD1)
-#######################################
-
-A6lib                  KEYWORD1
-callInfo               KEYWORD1
-
-#######################################
-# Methods and Functions (KEYWORD2)
-#######################################
-
-begin                  KEYWORD2
-powerCycle             KEYWORD2
-
+handle                 KEYWORD2
+start                  KEYWORD2
+waitForNetwork         KEYWORD2
+setDebugStream         KEYWORD2
+powerUp                KEYWORD2
+softReset              KEYWORD2
+hardReset              KEYWORD2
+getFirmWareVer         KEYWORD2
+getRSSI                KEYWORD2
+getSignalQuality       KEYWORD2
+getRealTimeClock       KEYWORD2
+getRealTimeClockString KEYWORD2
+getIMEI                KEYWORD2
+getSMSSca              KEYWORD2
+getRegisterStatus      KEYWORD2
+registerStatusToString KEYWORD2
+charsetToString        KEYWORD2
+recordTypeToString     KEYWORD2
+setSMSStorageArea      KEYWORD2
+setCharSet             KEYWORD2
+sendSMS                KEYWORD2
+sendPDU                KEYWORD2
+readSMS                KEYWORD2
+deleteSMS              KEYWORD2
+getSMSList             KEYWORD2
 dial                   KEYWORD2
 redial                 KEYWORD2
+answer                 KEYWORD2
 hangUp                 KEYWORD2
 checkCallStatus        KEYWORD2
-getSignalStrength      KEYWORD2
-
-sendSMS                KEYWORD2
-
 setVol                 KEYWORD2
 enableSpeaker          KEYWORD2
-
-A6conn                 KEYWORD2
-
-#######################################
-# Constants (LITERAL1)
-#######################################
+addHandler             KEYWORD2
+onSMSSent              KEYWORD2
+onSMSReceived          KEYWORD2
+onSMSStorageFull       KEYWORD2
+isSIMInserted          KEYWORD2
+isBusy                 KEYWORD2
+isRegsitered           KEYWORD2
+sendCommand            KEYWORD2
+sendUSSD               KEYWORD2
+getOperatorName        KEYWORD2
+getDeviceStatus        KEYWORD2

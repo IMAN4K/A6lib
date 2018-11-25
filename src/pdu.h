@@ -17,7 +17,7 @@
 #define PDU_H
 
 #include <stdint.h>
-#include <wchar.h>
+#include <inttypes.h>
 
 ///@cond INTERNAL
 #define GSM_CODING_MAX_CHAR 160
@@ -52,6 +52,6 @@ int pdu_encode(const char* sca, const char* phone, const char* text, uint8_t tex
 * \param pdu_size the size of input pdu buffer
 * \return if success a positive value represent number of pdu octets written, if fail a negative value represent error code
 */
-int pdu_encodew(const char* sca, const char* phone, const wchar_t* text, uint8_t text_len, uint8_t* pdu, uint8_t pdu_size);
+int pdu_encodew(const char* sca, const char* phone, const uint16_t* text, uint8_t text_len, uint8_t* pdu, uint8_t pdu_size);
 
 #endif // PDU_H

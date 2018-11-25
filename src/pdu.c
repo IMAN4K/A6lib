@@ -19,7 +19,7 @@
 
 #include "pdu.h"
 
-#define TO_HEX(arg) (uint8_t)(arg - 48)
+#define HEX(arg) (uint8_t)(arg - 48)
 
 /* 
 	reverse every 2 char of string <in> of size <len>, to hex <out> 
@@ -30,8 +30,8 @@ bool str_reverse(const char* in, uint8_t len, uint8_t* out) {
 		return false;
 
 	for (uint8_t i = 0; i < len;) {
-		uint8_t f = TO_HEX(in[i++]);
-		uint8_t s = TO_HEX(in[i++]) << 4;
+		uint8_t f = HEX(in[i++]);
+		uint8_t s = HEX(in[i++]) << 4;
 		*out++ = s | f;
 	}
 
@@ -136,7 +136,7 @@ int pdu_encode(const char* sca, const char* phone, const char* text, uint8_t tex
 	return indx;
 }
 
-int pdu_encodew(const char* sca, const char* phone, const wchar_t* text, uint8_t text_len, uint8_t* pdu, uint8_t pdu_size) {
+int pdu_encodew(const char* sca, const char* phone, const uint16_t* text, uint8_t text_len, uint8_t* pdu, uint8_t pdu_size) {
 	if (sca == NULL || phone == NULL || text == NULL || pdu == NULL || pdu_size < PDU_MIN_LEN)
 		return PDU_INVALID_ARG_ERR;
 
@@ -201,7 +201,7 @@ int pdu_encodew(const char* sca, const char* phone, const wchar_t* text, uint8_t
 
 	/* add UCS2 content as is */
 	for (size_t i = 0; i < text_len; i++) {
-		wchar_t w = text[i];
+		uint16_t w = text[i];
 		pdu[indx++] = w >> 8;
 		pdu[indx++] = w;
 	}

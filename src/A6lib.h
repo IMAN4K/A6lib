@@ -1,10 +1,20 @@
 #ifndef A6LIB_H
 #define A6LIB_H
 
+extern "C" {
+#include<time.h>
+}
+
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 #include <HardwareSerial.h>
 
+/* comment the following to disable them */
+//#define DEBUG
+#define SIM800_T
+//#define A6_T
+
+///@cond INTERNAL
 enum call_direction {
 	DIR_OUTGOING = 0,
 	DIR_INCOMING = 1
@@ -33,16 +43,6 @@ enum call_mode {
 	MODE_UNKNOWN = 9
 };
 
-struct SMSInfo {
-	SMSInfo() : number{}, date{}, message{} {
-
-	}
-
-	String number;
-	String date;
-	String message;
-};
-
 struct callInfo {
 	int index;
 	call_direction direction;
@@ -51,6 +51,21 @@ struct callInfo {
 	int multiparty;
 	String number;
 	int type;
+};
+///@endcond
+
+enum DeviceStatus {
+	Status_Ready = 0,
+	Status_Unknown = 2,
+	Status_Ringing = 3,
+	Status_Call_In_Progress = 4,
+};
+
+enum CharSet {
+	Gsm,
+	Ucs2,
+	Hex,
+	Pccp936
 };
 
 enum RegisterStatus {
@@ -62,9 +77,25 @@ enum RegisterStatus {
 	Registered_Roaming = 5,
 };
 
+class SMSInfo {
+public:
+	SMSInfo() : number{}, dateTime{}, message{} {
+
+	}
+
+	String number;
+	String dateTime;
+	String message;
+};
+
 enum SMSStorageArea {
 	ME = 1, /* modem storage area */
 	SM, /* sim card storage area */
+	MT, /* all storage areas associated with modem or mobile termination */
+#ifdef SIM800_T
+	SM_P,
+	ME_P,
+#endif
 };
 
 enum SMSRecordType {
@@ -84,32 +115,50 @@ public:
 	A6lib(SoftwareSerial* port);
 	A6lib(uint8_t rx_pin, uint8_t tx_pin);
 	~A6lib();
-
+#ifdef DEBUG
+	void setDebugStream(Stream*);
+#endif
 	void handle();
-	bool start(unsigned long baud, uint8_t max_retry);
-
+	bool start(uint8_t max_retry);
+	bool waitForNetwork(unsigned long baud, uint16_t time_out /* ms */);
+#ifdef A6_T
 	void powerUp(int pin);
-	void hardReset(uint8_t pin);
 	void softReset();
+#endif
+	void hardReset(uint8_t pin);
 
+	String getSIMNumber();
+	DeviceStatus getDeviceStatus();
 	String getFirmWareVer();
-	int8_t getRSSI();
+	int getRSSI();
 	uint8_t getSignalQuality();
-	String getRealTimeClock();
+	time_t getRealTimeClock();
+	String getRealTimeClockString(const String& format = String());
 	String getIMEI();
 	String getSMSSca();
 	RegisterStatus getRegisterStatus();
-	static String registerStatusToString(RegisterStatus);
+#ifdef SIM800_T
+	String getOperatorName();
+#endif
 
-	bool setPreferedStorage(SMSStorageArea);
-	bool setCharSet(const String &charset);
+	///@cond INTERNAL
+	static String deviceStatusToString(DeviceStatus);
+	static String registerStatusToString(RegisterStatus);
+	static String charsetToString(CharSet);
+	static String recordTypeToString(SMSRecordType);
+	///@endcond
+
+	String sendUSSD(const String& ussd_code, uint16_t timeout = -1);
+	bool setSMSStorageArea(SMSStorageArea);
+	bool setCharSet(CharSet);
 	bool sendSMS(const String& number, const String& text);
 	bool sendPDU(const String& number, const String& content);
-	bool sendPDU(const String& number, wchar_t* content, uint8_t len);
+	bool sendPDU(const String& number, uint16_t* content, uint8_t len);
 	SMSInfo readSMS(uint8_t index);
-	bool deleteSMS(uint8_t index);
+	bool deleteSMS(uint8_t index, bool del_all = false);
 	int8_t getSMSList(int8_t* buff, uint8_t len, SMSRecordType record);
 
+	///@cond INTERNAL
 	void dial(String number);
 	void redial();
 	void answer();
@@ -117,24 +166,33 @@ public:
 	callInfo checkCallStatus();
 	void setVol(byte level);
 	void enableSpeaker(byte enable);
+	///@endcond
 
 	void addHandler(void_cb_t);
 	void onSMSSent(sms_tx_cb_t);
 	void onSMSReceived(sms_rx_cb_t);
 	void onSMSStorageFull(sms_full_cb_t);
 
-	String sendCommand(const String& command, uint16_t reply_timeout = 2000);
 	///@cond INTERNAL
+	bool isSIMInserted();
 	bool isBusy() {
 		return isWaiting;
 	}
+	bool isRegsitered() {
+		const auto status = getRegisterStatus();
+		return status == Registered_HomeNetwork || status == Registered_Roaming;
+	}
 	///@endcond
+
+	String sendCommand(const String& command, uint16_t reply_timeout = 2000);
 
 protected:
 	///@cond INTERNAL
-	bool begin(unsigned long baud);
+	void dbg(const char* format, ...) const;
+	static String toTime(const char* cclk_str, const String& format);
+	static void toHex(String* in, uint8_t* pdu, uint8_t pdu_len);
 
-	unsigned long detectBaudRate();
+	bool begin();
 	bool setBaudRate(unsigned long baud);
 
 	void powerOn(uint8_t pin) const;
@@ -143,12 +201,15 @@ protected:
 	void parseForNotifications(String* data);
 	bool hasNotifications(const String& arg);
 
-	String readFromSerial() const;
-	bool cmd(const char *command, const char *resp1, const char *resp2, uint16_t timeout, uint8_t max_retry, String *response);
+	String streamData() const;
+	bool cmd(const char *command, const char *resp1, const char *resp2, uint16_t timeout, uint8_t max_retry, String *response = nullptr);
 	bool wait(const char *resp1, const char *resp2, uint16_t timeout, String *response);
 	///@endcond
 
 private:
+#ifdef DEBUG
+	Stream* dbg_stream = nullptr;
+#endif
 	Stream* stream = nullptr;
 	bool isWaiting = false;
 	struct SerialPorts {
@@ -179,4 +240,4 @@ private:
 	String lastInterestedReply;
 };
 
-#endif // A6LIB_H
+#endif // !A6LIB_H
