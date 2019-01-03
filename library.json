@@ -1,27 +1,32 @@
 {
-    "name": "A6lib",
-    "keywords": [
-      "A6","SIM800","GSM","ESP8266","AVR","Ai-Thinker",
-    ],
-    "description": "A library for controlling Ai-Thinker A6 GSM modem(also works with others like SIM800)",
-    "repository":
+  "name": "A6lib",
+  "keywords": [
+    "A6",
+    "SIM800",
+    "GSM",
+    "ESP8266",
+    "AVR",
+    "Ai-Thinker"
+  ],
+  "description": "A library for controlling Ai-Thinker A6 GSM modem(also works with others like SIM800)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IMAN4K/A6lib"
+  },
+  "version": "1.0.0",
+  "authors": [
     {
-        "type": "git",
-        "url": "https://github.com/IMAN4K/A6lib"
-    },
-    "version": "1.0.0",
-	"authors": [
-    {
-        "name": "Iman Ahmadvand",
-        "url": "https://github.com/IMAN4K",
-		"maintainer": true
+      "name": "Iman Ahmadvand",
+      "url": "https://github.com/IMAN4K",
+      "maintainer": true
     },
     {
-        "name": "Stavros Korokithakis",
-        "url": "https://github.com/skorokithakis",
-        "maintainer": false
-    },
-    "license": "MIT",
-    "frameworks": "arduino",
-    "platforms": "*"
+      "name": "Stavros Korokithakis",
+      "url": "https://github.com/skorokithakis",
+      "maintainer": false
+    }
+  ],
+  "license": "MIT",
+  "frameworks": "arduino",
+  "platforms": "*"
 }

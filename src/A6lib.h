@@ -139,6 +139,7 @@ public:
 	RegisterStatus getRegisterStatus();
 #ifdef SIM800_T
 	String getOperatorName();
+	int getADCValue();
 #endif
 
 	///@cond INTERNAL
