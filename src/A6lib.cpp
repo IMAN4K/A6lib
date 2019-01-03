@@ -850,9 +850,9 @@ bool A6lib::sendPDU(const String& number, const String& content) {
 			stream->print(hex_str);
 			stream->print(CTRLZ);
 		}
+		wait(CMGS_CMD, PLACE_HOLDER, A6_CMD_TIMEOUT * 2, nullptr);
+		cmd(AT_PREFIX CMGF_CMD "=1", RES_OK, RES_ERR, A6_CMD_TIMEOUT * 2.5, A6_CMD_MAX_RETRY * 2);
 	}
-	cmd(AT_PREFIX CMGF_CMD "=1", RES_OK, RES_ERR, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY * 2);
-
 	return success;
 }
 
@@ -902,8 +902,9 @@ bool A6lib::sendPDU(const String& number, uint16_t* content, uint8_t len) {
 			stream->print(hex_str);
 			stream->print(CTRLZ);
 		}
+		wait(CMGS_CMD, PLACE_HOLDER, A6_CMD_TIMEOUT * 2, nullptr);
+		cmd(AT_PREFIX CMGF_CMD "=1", RES_OK, RES_ERR, A6_CMD_TIMEOUT * 2.5, A6_CMD_MAX_RETRY * 2);
 	}
-	cmd(AT_PREFIX CMGF_CMD "=1", RES_OK, RES_ERR, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY * 2);
 
 	return success;
 }
