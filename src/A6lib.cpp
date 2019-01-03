@@ -48,6 +48,7 @@ extern "C" {
 #define CPAS_CMD "+CPAS"
 #define CNUM_CMD "+CNUM"
 #define CME_CMD "+CME"
+#define CADC_CMD "+CADC"
 #define NOTIF_CMTI "+CMTI"
 #define NOTIF_CIEV "+CIEV"
 #define UCS2 "UCS2"
@@ -511,6 +512,25 @@ String A6lib::getOperatorName() {
 	}
 
 	return String();
+}
+
+/*!
+* Get the module adc value if used.(ADC input could be in range 0v-2.8v)
+* \return if success a value between 0-2800 if fail -1
+*/
+int A6lib::getADCValue() {
+	String reply;
+	if (cmd(AT_PREFIX CADC_CMD "?", CADC_CMD, RES_OK, A6_CMD_TIMEOUT, A6_CMD_MAX_RETRY, &reply)) {
+		int status = -1;
+		int adc = -1;
+		const auto ok = sscanf(reply.c_str(), Literal("%*[^+]+CADC: %d,%d%*s").c_str(), &status, &adc);
+		if (ok > 0 && status)
+			return adc;
+		else
+			return -1;
+	}
+
+	return -1;
 }
 #endif
 
