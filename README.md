@@ -1,6 +1,6 @@
 # A6lib 
 [![Build Status](https://travis-ci.com/IMAN4K/A6lib.svg?branch=master)](https://travis-ci.com/IMAN4K/A6lib)
-[![release](https://img.shields.io/badge/release-v1.0.0-blue.svg)](https://github.com/IMAN4K/A6lib/tree/v1.0.0)
+[![release](https://img.shields.io/badge/release-v1.0.1-blue.svg)](https://github.com/IMAN4K/A6lib/tree/v1.0.1)
 [![APMLicense](https://img.shields.io/apm/l/vim-mode.svg)](https://github.com/IMAN4K/A6lib/blob/master/LICENSE.md)
 [![docs](https://img.shields.io/badge/docs-Doxygen-red.svg)](https://github.com/IMAN4K/A6lib/tree/master/docs)
 [![platform](https://img.shields.io/badge/platform-espressif8266%20%7C%20atmelavr-orange.svg)](https://github.com/IMAN4K/A6lib)

@@ -19,7 +19,7 @@ extern "C" {
 #define countof(a) (sizeof(a) / sizeof(a[0]))
 #define A6_CMD_TIMEOUT 2000
 #define A6_CMD_MAX_RETRY 2
-#define STREAM_TIMEOUT 200 // ms
+#define DEFAULT_STREAM_TIMEOUT 200 // ms
 
 #define PLACE_HOLDER "XX"
 #define RES_OK "OK"
@@ -83,7 +83,7 @@ extern "C" {
   * \param port HardwareSerial object for use inside A6lib.
   */
 A6lib::A6lib(HardwareSerial* port) : stream{ port } {
-	stream->setTimeout(STREAM_TIMEOUT);
+	setStreamTimeOut(DEFAULT_STREAM_TIMEOUT);
 	ports.state = PortState::Using_HardWareSerial;
 	ports.hport = port;
 }
@@ -93,7 +93,7 @@ A6lib::A6lib(HardwareSerial* port) : stream{ port } {
  * \param port SoftwareSerial object for use inside A6lib
  */
 A6lib::A6lib(SoftwareSerial* port) : stream{ port } {
-	stream->setTimeout(STREAM_TIMEOUT);
+	setStreamTimeOut(DEFAULT_STREAM_TIMEOUT);
 	ports.state = PortState::Using_SoftWareSerial;
 	ports.sport = port;
 }
@@ -107,7 +107,7 @@ A6lib::A6lib(uint8_t rx_pin, uint8_t tx_pin) {
 	ports.state = PortState::New_SoftwareSerial;
 	ports.sport = new SoftwareSerial(rx_pin, tx_pin);
 	stream = ports.sport;
-	stream->setTimeout(STREAM_TIMEOUT);
+	setStreamTimeOut(DEFAULT_STREAM_TIMEOUT);
 }
 
 /*!
@@ -140,6 +140,13 @@ void A6lib::dbg(const char* format, ...) const {
 	dbg_stream->print(Literal("\n[A6lib] "));
 	dbg_stream->print(buff);
 #endif
+}
+
+void A6lib::setStreamTimeOut(uint16_t t) {
+	if (stream) {
+		dbg(Literal("set stream timeout to %d").c_str(), t);
+		stream->setTimeout(t);
+	}
 }
 ///@endcond
 /*!

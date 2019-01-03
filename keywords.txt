@@ -52,3 +52,4 @@ sendCommand            KEYWORD2
 sendUSSD               KEYWORD2
 getOperatorName        KEYWORD2
 getDeviceStatus        KEYWORD2
+setStreamTimeOut       KEYWORD2

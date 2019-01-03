@@ -182,6 +182,7 @@ public:
 		const auto status = getRegisterStatus();
 		return status == Registered_HomeNetwork || status == Registered_Roaming;
 	}
+	void setStreamTimeOut(uint16_t);
 	///@endcond
 
 	String sendCommand(const String& command, uint16_t reply_timeout = 2000);
